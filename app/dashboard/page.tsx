@@ -4,12 +4,17 @@ import { cookies } from 'next/headers'
 import { LogoutButton } from '@/components/logout-button'
 import { GitBranchIcon } from 'lucide-react'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: { error?: string }
+}) {
   const cookieStore = cookies()
   const user = await requireUser(cookieStore.toString())
   if (!user) redirect('/')
 
-  // Fetch the current user's repos from the protected API.
+  const error = searchParams?.error ?? null
+
   let repos: Array<{ repoId: number; fullName: string; isPrivate: boolean }> = []
   try {
     const base = process.env.APP_URL ?? ''
@@ -22,11 +27,15 @@ export default async function DashboardPage() {
       repos = data.repos ?? []
     }
   } catch {
-    // Repos are optional on the dashboard; fail silently.
   }
 
   return (
     <main className="mx-auto w-full max-w-2xl px-6 py-12 flex flex-col gap-10">
+      {error && (
+        <div className="p-3 mb-4 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
+          {errorMessage(error)}
+        </div>
+      )}
       <header className="flex items-center justify-between gap-4 border-b border-dashed border-black/25 pb-4">
         <div className="flex items-center gap-3">
           <img
@@ -78,4 +87,19 @@ export default async function DashboardPage() {
       </section>
     </main>
   )
+}
+
+function errorMessage(error: string) {
+  switch (error) {
+    case 'no_installation':
+      return 'No installation was provided by GitHub.'
+    case 'invalid_state':
+      return 'Invalid security state. Please try connecting again.'
+    case 'invalid_installation':
+      return 'Invalid installation ID.'
+    case 'install_failed':
+      return 'Repository installation failed. Please try again.'
+    default:
+      return error
+  }
 }

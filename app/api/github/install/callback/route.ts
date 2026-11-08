@@ -9,25 +9,25 @@ import { getInstallationAccessToken, listInstallationRepos } from '@/lib/github'
 export const runtime = 'nodejs'
 
 export async function GET(req: Request): Promise<Response> {
-  const user = await requireUser(req.headers.get('cookie') ?? '')
+  const url = new URL(req.url)
+  const { searchParams } = url
+  const installationIdRaw = searchParams.get('installation_id')
+  const state = searchParams.get('state')
+  const cookieHeader = req.headers.get('cookie') ?? ''
+  const installStateMatch = cookieHeader.match(/(?:^|;\s*)gh_install_state=([^;]+)/)
+  const storedInstallState = installStateMatch ? installStateMatch[1] : null
+
+  const user = await requireUser(cookieHeader)
   if (!user) {
     return NextResponse.redirect(`${env.APP_URL}/`)
   }
 
-  const { searchParams } = new URL(req.url)
-  const installationIdRaw = searchParams.get('installation_id')
-  const state = searchParams.get('state')
-
-  // Verify state cookie ties this callback to an install flow we initiated.
-  const cookieHeader = req.headers.get('cookie') ?? ''
-  const installStateMatch = cookieHeader.match(/(?:^|;\s*)gh_install_state=([^;]+)/)
-  const storedInstallState = installStateMatch ? installStateMatch[1] : null
-  if (!storedInstallState || (state && storedInstallState !== state)) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=invalid_install_state`)
+  if (!installationIdRaw) {
+    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=no_installation`)
   }
 
-  if (!installationIdRaw) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=missing_installation`)
+  if (!state || !storedInstallState || storedInstallState !== state) {
+    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=invalid_state`)
   }
 
   const installationId = parseInt(installationIdRaw, 10)
@@ -36,7 +36,6 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   try {
-    // Upsert the installation record linked to the signed-in user.
     const [existing] = await db
       .select()
       .from(githubInstallations)
@@ -62,11 +61,9 @@ export async function GET(req: Request): Promise<Response> {
       installation = created
     }
 
-    // Fetch and store repositories the user granted to this installation.
     const installationToken = await getInstallationAccessToken(installationId)
     const repos = await listInstallationRepos(installationToken)
 
-    // Replace repo list for this installation (idempotent re-sync).
     await db.delete(installationRepos).where(eq(installationRepos.installationId, installation.id))
     if (repos.length > 0) {
       await db.insert(installationRepos).values(
@@ -88,7 +85,6 @@ export async function GET(req: Request): Promise<Response> {
     })
     return res
   } catch (err) {
-    console.error('install callback error:', err)
     return NextResponse.redirect(`${env.APP_URL}/dashboard?error=install_failed`)
   }
 }

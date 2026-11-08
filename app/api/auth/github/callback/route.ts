@@ -57,7 +57,6 @@ export async function GET(req: Request): Promise<Response> {
     return NextResponse.redirect(`${env.APP_URL}/?error=missing_params`)
   }
 
-  // Verify state against the httpOnly cookie we set on /api/auth/github.
   const cookieHeader = req.headers.get('cookie') ?? ''
   const stateCookieMatch = cookieHeader.match(/(?:^|;\s*)gh_state=([^;]+)/)
   const storedState = stateCookieMatch ? stateCookieMatch[1] : null
@@ -73,7 +72,6 @@ export async function GET(req: Request): Promise<Response> {
 
     const ghUser = await githubUser(tokenData.access_token)
 
-    // Upsert user record by github_id (signing in again never duplicates).
     const [existing] = await db.select().from(users).where(eq(users.githubId, ghUser.id))
     let dbUser = existing
     if (!dbUser) {
@@ -89,16 +87,13 @@ export async function GET(req: Request): Promise<Response> {
       dbUser = created
     }
 
-    // Start a session.
     const sessionToken = await createSession(dbUser.id)
 
     const res = NextResponse.redirect(`${env.APP_URL}/dashboard`)
     res.cookies.set('penguin_session', sessionToken, sessionCookieOptions())
-    // Clear the one-time state cookie.
     res.cookies.set('gh_state', '', { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 0 })
     return res
   } catch (err) {
-    console.error('github callback error:', err)
     return NextResponse.redirect(`${env.APP_URL}/?error=callback_failed`)
   }
 }

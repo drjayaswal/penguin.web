@@ -12,7 +12,6 @@ export async function GET(req: Request): Promise<Response> {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
 
-  // Every repo query filters by the signed-in user's id.
   const repos = await db
     .select({
       repoId: installationRepos.repoId,

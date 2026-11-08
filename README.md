@@ -209,3 +209,46 @@ Expect redirect to `/?error=invalid_state` (not a successful sign-in).
 - Session `secure` cookie is disabled on `localhost` so local development works over HTTP; it is enforced in production (`https`).
 - Phase 1 deliberately omits commit history, AI features, and billing.
 
+---
+
+## End-to-End Testing — Connect Repositories Flow
+
+### Prerequisites
+1. A GitHub App named **penguin** exists at GitHub → Settings → Developer settings → GitHub Apps
+2. Callback URL: `http://localhost:3000/api/auth/github/callback`
+3. Setup URL: `http://localhost:3000/api/github/install/callback`
+4. Redirect on update: `http://localhost:3000/dashboard`
+5. Repository permissions: Metadata (read), Contents (read) — no write
+6. `.env` is filled with `GITHUB_APP_ID`, `GITHUB_APP_SLUG`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_PRIVATE_KEY`, `DATABASE_URL`, `APP_URL`, `SESSION_SECRET`
+7. Database migration has been applied (`npm run db:generate && npm run db:migrate`)
+
+### Test Steps
+
+1. **Start the dev server:** `npm run dev`, open `http://localhost:3000`
+2. **Sign in:** Click "Sign in with GitHub", complete GitHub OAuth, you land on `/dashboard`
+3. **Connect repositories:** Click "Connect repositories" on `/dashboard`
+   - You are redirected to `https://github.com/apps/penguin/installations/new?state=<nonce>`
+   - Select your GitHub account/organization and choose which repos to grant
+   - GitHub redirects back to `/api/github/install/callback?installation_id=<id>&state=<nonce>`
+4. **Verify repos appear:** You are redirected back to `/dashboard` and the granted repos are listed under "Connected repositories"
+5. **Verify API:** `GET /api/repos` with your session cookie returns only those repos
+6. **Verify user isolation:** Sign in with a different GitHub account — they see only their own installations/repos
+7. **Verify logout:** Click "Sign out", then `/dashboard` redirects to `/`
+8. **Verify error handling:** Tamper with the `state` parameter in the callback URL — you get redirected to `/dashboard?error=invalid_state` with an error banner
+
+### Debug Logs
+The install and callback routes log to the server console:
+- `[install] setting gh_install_state cookie=...`
+- `[install/callback] url=... query=... cookie gh_install_state present=...`
+- `[install/callback] installation saved=...`
+- `[install/callback] repos fetched=... repos saved=...`
+
+### Files Changed in Debug Session
+| File | Change |
+|------|--------|
+| `app/api/github/install/callback/route.ts` | Added console logging at top; reordered checks (installation_id before state); missing `installation_id` → `?error=no_installation`; missing/mismatched `state` → `?error=invalid_state` with both values logged; added success logs for installation and repo saves |
+| `app/api/github/install/route.ts` | Added console log confirming `gh_install_state` cookie is set with `path="/"`, `httpOnly`, `sameSite: "lax"`, `maxAge: 600` |
+| `app/dashboard/page.tsx` | Accepts `searchParams` to read `?error=`; shows error banner with `errorMessage()` mapping for `no_installation`, `invalid_state`, `invalid_installation`, `install_failed` |
+| `README.md` | Added End-to-End Testing section with prerequisites, test steps, debug logs, and files changed table |
+
+

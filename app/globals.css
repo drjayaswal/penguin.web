@@ -27,7 +27,6 @@ a {
   display: block;
 }
 
-/* Invert the white logo so it shows as black on light backgrounds. */
 .invert {
   filter: invert(1);
 }

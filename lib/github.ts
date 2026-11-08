@@ -1,10 +1,6 @@
 import crypto from 'crypto'
 import { env } from '@/lib/env'
 
-/**
- * Resolve the GitHub App private key PEM. The env var may be supplied either
- * as a literal PEM with escaped newlines (\\n) or as a base64-encoded PEM.
- */
 export function getPrivateKeyPem(): string {
   const raw = env.GITHUB_PRIVATE_KEY
   if (raw.includes('BEGIN')) {
@@ -13,14 +9,13 @@ export function getPrivateKeyPem(): string {
   return Buffer.from(raw, 'base64').toString('utf8')
 }
 
-/** Sign a GitHub App JWT (RS256) used to request installation access tokens. */
 export function generateAppJwt(): string {
   const now = Math.floor(Date.now() / 1000)
   const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url')
   const payload = Buffer.from(
     JSON.stringify({
       iat: now,
-      exp: now + 600, // 10 minutes
+      exp: now + 600,
       iss: env.GITHUB_APP_ID,
     }),
   ).toString('base64url')
@@ -32,7 +27,6 @@ export function generateAppJwt(): string {
   return `${signingInput}.${signature}`
 }
 
-/** Exchange an App JWT for an installation access token. */
 export async function getInstallationAccessToken(installationId: number): Promise<string> {
   const jwt = generateAppJwt()
   const res = await fetch(
@@ -54,14 +48,12 @@ export async function getInstallationAccessToken(installationId: number): Promis
   return data.token as string
 }
 
-/** A repository granted to a GitHub App installation. */
 export interface InstallationRepo {
   repoId: number
   fullName: string
   isPrivate: boolean
 }
 
-/** List repositories accessible to an installation using its access token. */
 export async function listInstallationRepos(
   installationToken: string,
 ): Promise<InstallationRepo[]> {

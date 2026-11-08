@@ -5,7 +5,7 @@ import { and, eq, gt } from 'drizzle-orm'
 import { env, isLocalhost } from '@/lib/env'
 
 export const SESSION_COOKIE = 'penguin_session'
-export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
+export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
 export function hashToken(token: string): string {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -15,7 +15,6 @@ export function generateSessionToken(): string {
   return crypto.randomBytes(32).toString('hex')
 }
 
-/** Create a session row for a user and return the raw session token. */
 export async function createSession(userId: number): Promise<string> {
   const token = generateSessionToken()
   await db.insert(sessions).values({
@@ -27,16 +26,10 @@ export async function createSession(userId: number): Promise<string> {
   return token
 }
 
-/** Delete a session row by raw token. */
 export async function deleteSession(token: string): Promise<void> {
   await db.delete(sessions).where(eq(sessions.id, token))
 }
 
-/**
- * Resolve the signed-in user from a Cookie header string.
- * Returns { user, session } or null when there is no valid session.
- * Used by all protected routes (requireUser).
- */
 export async function requireUser(cookie: string): Promise<{ user: typeof users.$inferSelect; session: typeof sessions.$inferSelect } | null> {
   const match = cookie.match(/(?:^|;\s*)penguin_session=([^;]+)/)
   if (!match) return null
@@ -57,7 +50,6 @@ export async function requireUser(cookie: string): Promise<{ user: typeof users.
   return { user, session: sessionRow }
 }
 
-/** Build Set-Cookie options shared across the app. */
 export function sessionCookieOptions() {
   return {
     httpOnly: true,

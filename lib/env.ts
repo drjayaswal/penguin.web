@@ -1,8 +1,3 @@
-/**
- * Validates required environment variables at startup.
- * Throws a clear error if any are missing so the app fails fast instead of
- * behaving unpredictably with undefined secrets.
- */
 const REQUIRED = [
   'DATABASE_URL',
   'GITHUB_APP_ID',
@@ -24,7 +19,6 @@ export function validateEnv(): void {
   }
 }
 
-// Importing this module triggers validation at startup.
 validateEnv()
 
 export const env = {

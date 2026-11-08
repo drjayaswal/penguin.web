@@ -6,7 +6,6 @@ import { requireUser } from '@/lib/auth'
 export const runtime = 'nodejs'
 
 export async function GET(req: Request): Promise<Response> {
-  // Only the signed-in user can connect repositories.
   const user = await requireUser(req.headers.get('cookie') ?? '')
   if (!user) {
     return NextResponse.redirect(`${env.APP_URL}/`)
