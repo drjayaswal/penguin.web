@@ -30,12 +30,12 @@ lib/env.ts            # Startup validation of all required env vars
 lib/auth.ts           # Session token hashing, create/delete session, requireUser()
 lib/github.ts         # GitHub App private key PEM resolver, App JWT, installation access token, list repos
 
-middleware.ts         # Redirects /dashboard -> / when no session cookie
+middleware.ts         # Redirects /settings -> / when no session cookie
 
 app/layout.tsx        # Root layout: Penguin logo (light theme only)
 app/globals.css       # Tailwind + black/white light theme variables
 app/page.tsx          # / — "Sign in with GitHub" button
-app/dashboard/page.tsx# /dashboard — user info, Connect repositories, repo list, sign out
+app/settings/page.tsx# /settings — user info, Connect repositories, repo list, sign out
 
 app/api/auth/github/route.ts                      # GET — start GitHub OAuth (state + httpOnly cookie)
 app/api/auth/github/callback/route.ts             # GET — verify state, exchange code, upsert user, session
@@ -105,7 +105,7 @@ Create a **GitHub App** at GitHub → Settings → Developer settings → GitHub
 | Homepage URL | `{APP_URL}` (e.g. `http://localhost:3000`) |
 | **Callback URL** | `{APP_URL}/api/auth/github/callback` |
 | **Setup URL** (Post-installation setup URL) | `{APP_URL}/api/github/install/callback` |
-| **Redirect on update** | `{APP_URL}/dashboard` |
+| **Redirect on update** | `{APP_URL}/settings` |
 | Webhook URL | (optional, not required for Phase 1) |
 
 **Repository permissions** — read-only only (do NOT enable write):
@@ -116,17 +116,17 @@ After saving, generate a private key, download the `.pem`, base64-encode it (or 
 
 #### How repo access works (step by step)
 
-1. User signs in with GitHub (`/api/auth/github` → callback → `/dashboard`).
-2. User clicks **"Connect repositories"** on `/dashboard`.
+1. User signs in with GitHub (`/api/auth/github` → callback → `/settings`).
+2. User clicks **"Connect repositories"** on `/settings`.
 3. App redirects to `https://github.com/apps/penguin/installations/new?state=...`.
 4. User chooses their GitHub account/organization and selects which repos to grant.
 5. GitHub redirects back to `/api/github/install/callback?installation_id=123456&state=...`.
 6. App verifies the signed-in user + state, generates an installation access token from the App JWT + private key, fetches `GET /installation/repositories`, and stores each repo under that user.
-7. Repos appear on `/dashboard` under "Connected repositories" and via `GET /api/repos` (filtered by the signed-in user's id).
+7. Repos appear on `/settings` under "Connected repositories" and via `GET /api/repos` (filtered by the signed-in user's id).
 
 #### Where repos are listed
 
-- **UI:** `/dashboard` → "Connected repositories" section (only that user's repos).
+- **UI:** `/settings` → "Connected repositories" section (only that user's repos).
 - **API:** `GET /api/repos` → returns only repos belonging to the signed-in user (401 if signed out).
 - **DB:** `github_installations` (one row per installation) + `installation_repos` (one row per repo).
 
@@ -135,9 +135,9 @@ After saving, generate a private key, download the `.pem`, base64-encode it (or 
 | Route | Method | Description |
 |---|---|---|
 | `/` | GET | Sign-in page with "Sign in with GitHub" button |
-| `/dashboard` | GET | Protected. User info, Connect repositories button, repo list |
+| `/settings` | GET | Protected. User info, Connect repositories button, repo list |
 | `/api/auth/github` | GET | Start GitHub OAuth (sets `gh_state` httpOnly cookie, redirects) |
-| `/api/auth/github/callback` | GET | Verify state, exchange code, upsert user, create session, redirect `/dashboard` |
+| `/api/auth/github/callback` | GET | Verify state, exchange code, upsert user, create session, redirect `/settings` |
 | `/api/auth/logout` | POST | Delete session, clear cookie |
 | `/api/github/install` | GET | Redirect to GitHub App install page (sets `gh_install_state` cookie) |
 | `/api/github/install/callback` | GET | Verify user + state, save `installation_id`, fetch & store repos |
@@ -150,7 +150,7 @@ After saving, generate a private key, download the `.pem`, base64-encode it (or 
 - The `state` nonce is stored in an httpOnly cookie and verified on both callbacks; a tampered/mismatched state is rejected.
 - `GITHUB_CLIENT_SECRET` and `GITHUB_PRIVATE_KEY` never leave the server.
 - Every repo query filters by the signed-in user's id (`github_installations.userId`).
-- `requireUser()` is used by all protected API routes; `/dashboard` is also guarded by middleware.
+- `requireUser()` is used by all protected API routes; `/settings` is also guarded by middleware.
 - Session cookie: `httpOnly`, `secure` (off on `localhost`), `sameSite=lax`, 7-day TTL.
 
 ## Acceptance checks
@@ -167,9 +167,9 @@ SELECT github_id, login, count(*) FROM users GROUP BY github_id, login;
 
 Expect exactly 1 row with `count = 1` after both sign-ins.
 
-### 2. Installing on one repo → only that repo shows in /dashboard
+### 2. Installing on one repo → only that repo shows in /settings
 
-Install the GitHub App on a test account and grant access to exactly ONE repo. After the install callback redirects to `/dashboard`:
+Install the GitHub App on a test account and grant access to exactly ONE repo. After the install callback redirects to `/settings`:
 
 ```bash
 curl -s -b "penguin_session=<session-cookie>" http://localhost:3000/api/repos
@@ -177,11 +177,11 @@ curl -s -b "penguin_session=<session-cookie>" http://localhost:3000/api/repos
 
 Expect `repos` length 1 containing only that repo. The dashboard should list only that repo.
 
-### 3. Logging out redirects /dashboard to /
+### 3. Logging out redirects /settings to /
 
 ```bash
 curl -s -X POST -b "penguin_session=<session-cookie>" http://localhost:3000/api/auth/logout
-curl -s -D - http://localhost:3000/dashboard   # no session cookie
+curl -s -D - http://localhost:3000/settings   # no session cookie
 ```
 
 Expect HTTP 302 redirect to `http://localhost:3000/`.
@@ -217,7 +217,7 @@ Expect redirect to `/?error=invalid_state` (not a successful sign-in).
 1. A GitHub App named **penguin** exists at GitHub → Settings → Developer settings → GitHub Apps
 2. Callback URL: `http://localhost:3000/api/auth/github/callback`
 3. Setup URL: `http://localhost:3000/api/github/install/callback`
-4. Redirect on update: `http://localhost:3000/dashboard`
+4. Redirect on update: `http://localhost:3000/settings`
 5. Repository permissions: Metadata (read), Contents (read) — no write
 6. `.env` is filled with `GITHUB_APP_ID`, `GITHUB_APP_SLUG`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_PRIVATE_KEY`, `DATABASE_URL`, `APP_URL`, `SESSION_SECRET`
 7. Database migration has been applied (`npm run db:generate && npm run db:migrate`)
@@ -225,16 +225,16 @@ Expect redirect to `/?error=invalid_state` (not a successful sign-in).
 ### Test Steps
 
 1. **Start the dev server:** `npm run dev`, open `http://localhost:3000`
-2. **Sign in:** Click "Sign in with GitHub", complete GitHub OAuth, you land on `/dashboard`
-3. **Connect repositories:** Click "Connect repositories" on `/dashboard`
+2. **Sign in:** Click "Sign in with GitHub", complete GitHub OAuth, you land on `/settings`
+3. **Connect repositories:** Click "Connect repositories" on `/settings`
    - You are redirected to `https://github.com/apps/penguin/installations/new?state=<nonce>`
    - Select your GitHub account/organization and choose which repos to grant
    - GitHub redirects back to `/api/github/install/callback?installation_id=<id>&state=<nonce>`
-4. **Verify repos appear:** You are redirected back to `/dashboard` and the granted repos are listed under "Connected repositories"
+4. **Verify repos appear:** You are redirected back to `/settings` and the granted repos are listed under "Connected repositories"
 5. **Verify API:** `GET /api/repos` with your session cookie returns only those repos
 6. **Verify user isolation:** Sign in with a different GitHub account — they see only their own installations/repos
-7. **Verify logout:** Click "Sign out", then `/dashboard` redirects to `/`
-8. **Verify error handling:** Tamper with the `state` parameter in the callback URL — you get redirected to `/dashboard?error=invalid_state` with an error banner
+7. **Verify logout:** Click "Sign out", then `/settings` redirects to `/`
+8. **Verify error handling:** Tamper with the `state` parameter in the callback URL — you get redirected to `/settings?error=invalid_state` with an error banner
 
 ### Debug Logs
 The install and callback routes log to the server console:
@@ -248,7 +248,7 @@ The install and callback routes log to the server console:
 |------|--------|
 | `app/api/github/install/callback/route.ts` | Added console logging at top; reordered checks (installation_id before state); missing `installation_id` → `?error=no_installation`; missing/mismatched `state` → `?error=invalid_state` with both values logged; added success logs for installation and repo saves |
 | `app/api/github/install/route.ts` | Added console log confirming `gh_install_state` cookie is set with `path="/"`, `httpOnly`, `sameSite: "lax"`, `maxAge: 600` |
-| `app/dashboard/page.tsx` | Accepts `searchParams` to read `?error=`; shows error banner with `errorMessage()` mapping for `no_installation`, `invalid_state`, `invalid_installation`, `install_failed` |
+| `app/settings/page.tsx` | Accepts `searchParams` to read `?error=`; shows error banner with `errorMessage()` mapping for `no_installation`, `invalid_state`, `invalid_installation`, `install_failed` |
 | `README.md` | Added End-to-End Testing section with prerequisites, test steps, debug logs, and files changed table |
 
 

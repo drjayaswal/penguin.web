@@ -89,7 +89,7 @@ export async function GET(req: Request): Promise<Response> {
 
     const sessionToken = await createSession(dbUser.id)
 
-    const res = NextResponse.redirect(`${env.APP_URL}/dashboard`)
+    const res = NextResponse.redirect(`${env.APP_URL}/settings`)
     res.cookies.set('penguin_session', sessionToken, sessionCookieOptions())
     res.cookies.set('gh_state', '', { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 0 })
     return res

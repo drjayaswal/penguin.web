@@ -2,12 +2,20 @@ import { NextResponse, NextRequest } from 'next/server'
 
 export function middleware(req: NextRequest) {
   const url = new URL(req.url)
-  if (url.pathname === '/dashboard' && !req.cookies.has('penguin_session')) {
+
+  if (url.pathname.startsWith('/dashboard')) {
+    const targetUrl = new URL(url.pathname.replace(/^\/dashboard/, '/settings') || '/settings', req.url)
+    targetUrl.search = url.search
+    return NextResponse.redirect(targetUrl)
+  }
+
+  if (url.pathname.startsWith('/settings') && !req.cookies.has('penguin_session')) {
     return NextResponse.redirect(new URL('/', req.url))
   }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/dashboard'],
+  matcher: ['/dashboard/:path*', '/dashboard', '/settings/:path*', '/settings'],
 }

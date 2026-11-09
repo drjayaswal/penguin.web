@@ -2,6 +2,7 @@
 
 import { LogOutIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { Button } from './ui/button'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -21,13 +22,14 @@ export function LogoutButton() {
       onSubmit={handleLogout}
       className="flex items-center gap-2"
     >
-      <button
+      <Button
         type="submit"
-        className="w-full flex justify-center items-center gap-2 sm:w-auto px-4 py-2 rounded-2xl font-medium bg-red-600/10 text-red-600 hover:text-white text-sm hover:bg-red-600 transition-all duration-200"
+        variant="destructive"
+        className="w-full flex justify-center items-center gap-2 sm:w-auto"
       >
         <LogOutIcon className="w-4 h-4" />
         Leave
-      </button>
+      </Button>
     </form>
   )
 }

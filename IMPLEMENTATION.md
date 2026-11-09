@@ -114,7 +114,7 @@ Neither `GITHUB_CLIENT_SECRET` nor `GITHUB_PRIVATE_KEY` is ever sent to the brow
 - Calls `GET https://api.github.com/user` to get the GitHub profile.
 - Upserts `users` by `github_id` (signing in again never creates a duplicate row).
 - Calls `createSession(userId)`, sets `penguin_session` httpOnly cookie.
-- Redirects to `/dashboard`.
+- Redirects to `/settings`.
 
 ### `POST /api/auth/logout`
 - Reads `penguin_session` from Cookie header, deletes the session row.
@@ -134,7 +134,7 @@ Neither `GITHUB_CLIENT_SECRET` nor `GITHUB_PRIVATE_KEY` is ever sent to the brow
 - Calls `getInstallationAccessToken(installationId)` (App JWT → installation token).
 - Calls `listInstallationRepos(token)` to fetch granted repos.
 - Deletes existing `installation_repos` for this installation, inserts fresh list.
-- Redirects to `/dashboard`.
+- Redirects to `/settings`.
 
 ### `GET /api/me`
 - Calls `requireUser(cookie)`; if null → 401 `{ error: 'unauthorized' }`.
@@ -151,7 +151,7 @@ Neither `GITHUB_CLIENT_SECRET` nor `GITHUB_PRIVATE_KEY` is ever sent to the brow
 
 ## 6. Middleware (`middleware.ts`)
 
-- Matches `/dashboard`.
+- Matches `/settings`.
 - If no `penguin_session` cookie → 302 redirect to `/`.
 - This is an additional guard on top of `requireUser()` in API routes.
 
@@ -161,10 +161,10 @@ Neither `GITHUB_CLIENT_SECRET` nor `GITHUB_PRIVATE_KEY` is ever sent to the brow
 
 ### `/` (`app/page.tsx`)
 - Server Component.
-- Calls `requireUser(cookieStore.toString())`; if signed in → redirect `/dashboard`.
+- Calls `requireUser(cookieStore.toString())`; if signed in → redirect `/settings`.
 - Renders: Penguin logo (inverted black via CSS), "Sign in with GitHub" button (form GET to `/api/auth/github`), error message if `?error=` present.
 
-### `/dashboard` (`app/dashboard/page.tsx`)
+### `/settings` (`app/settings/page.tsx`)
 - Server Component.
 - Calls `requireUser(cookieStore.toString())`; if null → redirect `/`.
 - Fetches `GET /api/repos` with the session cookie (server-side fetch).
@@ -258,7 +258,7 @@ Create the app at **GitHub → Settings → Developer settings → GitHub Apps �
 | Homepage URL | `http://localhost:3000` |
 | **Callback URL** | `http://localhost:3000/api/auth/github/callback` |
 | **Setup URL** (Post-installation setup URL) | `http://localhost:3000/api/github/install/callback` |
-| **Redirect on update** | `http://localhost:3000/dashboard` |
+| **Redirect on update** | `http://localhost:3000/settings` |
 | Webhook URL | (optional, not required) |
 
 **Repository permissions** (read-only only — do NOT enable write):
@@ -296,17 +296,17 @@ SELECT github_id, login, count(*) FROM users GROUP BY github_id, login;
 ```
 Expect exactly 1 row with `count = 1` after signing in twice.
 
-### 2. Installing on one repo → only that repo shows in /dashboard
+### 2. Installing on one repo → only that repo shows in /settings
 Install the GitHub App on a test account, grant exactly ONE repo. Then:
 ```bash
 curl -s -b "penguin_session=<session-cookie>" http://localhost:3000/api/repos
 ```
 Expect `repos` array length 1 containing only that repo.
 
-### 3. Logging out redirects /dashboard to /
+### 3. Logging out redirects /settings to /
 ```bash
 curl -s -X POST -b "penguin_session=<session-cookie>" http://localhost:3000/api/auth/logout
-curl -s -D - http://localhost:3000/dashboard   # no session cookie
+curl -s -D - http://localhost:3000/settings   # no session cookie
 ```
 Expect HTTP 302 to `http://localhost:3000/`.
 

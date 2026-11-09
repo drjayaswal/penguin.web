@@ -23,16 +23,16 @@ export async function GET(req: Request): Promise<Response> {
   }
 
   if (!installationIdRaw) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=no_installation`)
+    return NextResponse.redirect(`${env.APP_URL}/settings?error=no_installation`)
   }
 
   if (!state || !storedInstallState || storedInstallState !== state) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=invalid_state`)
+    return NextResponse.redirect(`${env.APP_URL}/settings?error=invalid_state`)
   }
 
   const installationId = parseInt(installationIdRaw, 10)
   if (Number.isNaN(installationId)) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=invalid_installation`)
+    return NextResponse.redirect(`${env.APP_URL}/settings?error=invalid_installation`)
   }
 
   try {
@@ -76,7 +76,7 @@ export async function GET(req: Request): Promise<Response> {
       )
     }
 
-    const res = NextResponse.redirect(`${env.APP_URL}/dashboard`)
+    const res = NextResponse.redirect(`${env.APP_URL}/settings`)
     res.cookies.set('gh_install_state', '', {
       httpOnly: true,
       sameSite: 'lax',
@@ -85,6 +85,6 @@ export async function GET(req: Request): Promise<Response> {
     })
     return res
   } catch (err) {
-    return NextResponse.redirect(`${env.APP_URL}/dashboard?error=install_failed`)
+    return NextResponse.redirect(`${env.APP_URL}/settings?error=install_failed`)
   }
 }
