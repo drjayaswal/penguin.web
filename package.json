@@ -9,7 +9,8 @@
     "start": "next start",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test:phase2": "bun run scripts/test-phase2.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.30.0",

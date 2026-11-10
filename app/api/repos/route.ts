@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/db/index'
 import { requireUser } from '@/lib/auth'
 import { githubInstallations, installationRepos } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { asc, eq } from 'drizzle-orm'
 
 export const runtime = 'nodejs'
 
@@ -14,6 +14,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const repos = await db
     .select({
+      id: installationRepos.id,
       repoId: installationRepos.repoId,
       fullName: installationRepos.fullName,
       isPrivate: installationRepos.isPrivate,
@@ -22,6 +23,7 @@ export async function GET(req: Request): Promise<Response> {
     .from(installationRepos)
     .innerJoin(githubInstallations, eq(installationRepos.installationId, githubInstallations.id))
     .where(eq(githubInstallations.userId, user.user.id))
+    .orderBy(asc(installationRepos.fullName))
 
   return NextResponse.json({ repos })
 }

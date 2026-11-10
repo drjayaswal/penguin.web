@@ -2,9 +2,14 @@ import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { LogoutButton } from '@/components/logout-button'
-import { GitBranchIcon, GlobeIcon, LockIcon } from 'lucide-react'
+import { GitBranchIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { RepoCommitsList } from '@/components/repo-commits-card'
+import { db } from '@/db/index'
+import { commits, githubInstallations, installationRepos } from '@/db/schema'
+import { asc, desc, eq } from 'drizzle-orm'
+
+export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage({
   searchParams,
@@ -17,23 +22,52 @@ export default async function SettingsPage({
 
   const error = searchParams?.error ?? null
 
-  let repos: Array<{ repoId: number; fullName: string; isPrivate: boolean }> = []
-  try {
-    const base = process.env.APP_URL ?? ''
-    const res = await fetch(`${base}/api/repos`, {
-      headers: { cookie: cookieStore.toString() },
-      cache: 'no-store',
+  const repos = await db
+    .select({
+      id: installationRepos.id,
+      repoId: installationRepos.repoId,
+      fullName: installationRepos.fullName,
+      isPrivate: installationRepos.isPrivate,
     })
-    if (res.ok) {
-      const data = await res.json()
-      repos = data.repos ?? []
-    }
-  } catch {
-  }
+    .from(installationRepos)
+    .innerJoin(githubInstallations, eq(installationRepos.installationId, githubInstallations.id))
+    .where(eq(githubInstallations.userId, user.user.id))
+    .orderBy(asc(installationRepos.fullName))
+
+  const reposWithCommits = await Promise.all(
+    repos.map(async (repo) => {
+      let initialCommits: any[] = []
+      try {
+        initialCommits = await db
+          .select({
+            id: commits.id,
+            sha: commits.sha,
+            message: commits.message,
+            authorName: commits.authorName,
+            authorEmail: commits.authorEmail,
+            authorLogin: commits.authorLogin,
+            committedAt: commits.committedAt,
+          })
+          .from(commits)
+          .where(eq(commits.repoId, repo.id))
+          .orderBy(desc(commits.committedAt), desc(commits.id))
+          .limit(50)
+      } catch {
+      }
+
+      return {
+        ...repo,
+        initialCommits: initialCommits.map((c) => ({
+          ...c,
+          committedAt: c.committedAt.toISOString(),
+        })),
+      }
+    }),
+  )
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <main className="mx-auto w-full max-w-2xl px-6 pt-24 pb-28 flex flex-col gap-8">
+      <main className="mx-auto w-full max-w-2xl p-6 flex flex-col gap-8">
         {error && (
           <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
             {errorMessage(error)}
@@ -57,39 +91,19 @@ export default async function SettingsPage({
           </form>
         </div>
 
-        <section className="flex flex-col gap-3">
-          {repos.length === 0 ? (
+        <section className="flex flex-col gap-4">
+          {reposWithCommits.length === 0 ? (
             <p className="text-sm text-neutral-600 py-4">
               No repositories connected yet.
             </p>
           ) : (
-            <ul className="flex flex-col gap-3">
-              {repos.map((repo) => (
-                <li
-                  key={repo.repoId}
-                >
-                  <Link
-                    href={`https://github.com/${repo.fullName}`}
-                    className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-black hover:text-blue-600 bg-white border border-gray-200/75 outline-0 ring-0 shadow-md transition-colors"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      {repo.isPrivate ? (
-                        <LockIcon className="h-4 w-4 shrink-0 text-neutral-500" aria-label="Private repository" />
-                      ) : (
-                        <GlobeIcon className="h-4 w-4 shrink-0 text-neutral-500" aria-label="Public repository" />
-                      )}
-                      <span className="text-sm font-medium truncate">{repo.fullName}</span>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <RepoCommitsList repos={reposWithCommits} />
           )}
         </section>
       </main>
 
       <footer className="fixed bottom-1 left-1 right-1 z-20 bg-bg/95 backdrop-blur-xs">
-        <div className="mx-auto w-full max-w-2xl px-6 py-4 flex items-center justify-between gap-4">
+        <div className="mx-auto w-full w-full px-6 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {user.user.avatarUrl && (
               <img

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { env } from '@/lib/env'
 import { db } from '@/db/index'
-import { users, githubInstallations, installationRepos } from '@/db/schema'
-import { eq, and, gt } from 'drizzle-orm'
+import { githubInstallations, installationRepos, commits } from '@/db/schema'
+import { eq, inArray } from 'drizzle-orm'
 import { requireUser } from '@/lib/auth'
 import { getInstallationAccessToken, listInstallationRepos } from '@/lib/github'
 
@@ -64,16 +64,40 @@ export async function GET(req: Request): Promise<Response> {
     const installationToken = await getInstallationAccessToken(installationId)
     const repos = await listInstallationRepos(installationToken)
 
-    await db.delete(installationRepos).where(eq(installationRepos.installationId, installation.id))
-    if (repos.length > 0) {
-      await db.insert(installationRepos).values(
-        repos.map((repo) => ({
+    const existingRows = await db
+      .select({ id: installationRepos.id, repoId: installationRepos.repoId })
+      .from(installationRepos)
+      .where(eq(installationRepos.installationId, installation.id))
+
+    const newRepoIds = new Set(repos.map((r) => r.repoId))
+    const removedIds = existingRows
+      .filter((row) => !newRepoIds.has(row.repoId))
+      .map((row) => row.id)
+
+    if (removedIds.length > 0) {
+      await db.delete(commits).where(inArray(commits.repoId, removedIds))
+      await db.delete(installationRepos).where(inArray(installationRepos.id, removedIds))
+    }
+
+    for (const repo of repos) {
+      await db
+        .insert(installationRepos)
+        .values({
           installationId: installation.id,
           repoId: repo.repoId,
           fullName: repo.fullName,
           isPrivate: repo.isPrivate,
-        })),
-      )
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: installationRepos.repoId,
+          set: {
+            installationId: installation.id,
+            fullName: repo.fullName,
+            isPrivate: repo.isPrivate,
+            updatedAt: new Date(),
+          },
+        })
     }
 
     const res = NextResponse.redirect(`${env.APP_URL}/settings`)
@@ -85,6 +109,7 @@ export async function GET(req: Request): Promise<Response> {
     })
     return res
   } catch (err) {
+    console.error('[install/callback] error:', err)
     return NextResponse.redirect(`${env.APP_URL}/settings?error=install_failed`)
   }
 }

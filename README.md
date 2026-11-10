@@ -251,4 +251,46 @@ The install and callback routes log to the server console:
 | `app/settings/page.tsx` | Accepts `searchParams` to read `?error=`; shows error banner with `errorMessage()` mapping for `no_installation`, `invalid_state`, `invalid_installation`, `install_failed` |
 | `README.md` | Added End-to-End Testing section with prerequisites, test steps, debug logs, and files changed table |
 
+---
+
+## Phase 2 — Commit History Sync & Acceptance Checks
+
+### Features Implemented
+1. **Drizzle schema (`commits` table)**:
+   - `id`: serial primary key
+   - `repo_id`: integer foreign key referencing `installation_repos.id`
+   - `sha`: text unique per repo (`UNIQUE("repo_id", "sha")`)
+   - `message`: commit message text
+   - `author_name`, `author_email`, `author_login`: author metadata
+   - `committed_at`: timestamp with time zone
+   - `parent_shas`: text array
+   - `created_at`: timestamp with time zone default now()
+2. **`POST /api/repos/:repoId/sync`**:
+   - Protected by `requireUser` (returns 401 if unauthenticated)
+   - Verifies repo ownership through `github_installations.user_id` (returns 404 otherwise)
+   - Obtains installation access token via `getInstallationAccessToken`
+   - Calls `GET /repos/{full_name}/commits` with `per_page=100`, paginating with `page` parameter until empty
+   - Upserts commits by `(repo_id, sha)` avoiding duplicates on re-sync
+   - Returns `{ fetched, inserted }`
+   - Handles GitHub 403 (rate limit/permissions) and 404 (repo gone) with clear JSON errors, never 500
+3. **`GET /api/repos/:repoId/commits`**:
+   - Protected by `requireUser` (returns 401 if unauthenticated)
+   - Same repo ownership verification (returns 404 otherwise)
+   - Cursor pagination by `committed_at desc` (limit max 100, default 50)
+4. **UI on `/settings`**:
+   - "Sync" button per repository with dynamic loading state and feedback
+   - Lists latest 50 commits displaying short SHA, first line of message, author, and date
+
+### Acceptance Checks
+Run the automated test suite:
+```bash
+npm run test:phase2
+```
+
+- **Sync twice on the same repo**: Row count unchanged the second time (`inserted: 0`).
+- **User isolation (Ownership check)**: A user cannot sync or read another user's repo (expect 404) by changing `repoId` in the URL.
+- **Syncing a repo with > 100 commits**: Paginates and stores all commits.
+- **Signed-out requests**: Both endpoints return 401 when called without a valid session cookie.
+
+
 
