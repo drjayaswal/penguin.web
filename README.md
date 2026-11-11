@@ -292,5 +292,50 @@ npm run test:phase2
 - **Syncing a repo with > 100 commits**: Paginates and stores all commits.
 - **Signed-out requests**: Both endpoints return 401 when called without a valid session cookie.
 
+---
+
+## Phase 3 — Commit Changed Files & Diffs
+
+### Features Implemented
+1. **Drizzle schema (`commit_files` table)**:
+   - `id`: serial primary key
+   - `commit_id`: integer foreign key referencing `commits.id` (`ON DELETE CASCADE`)
+   - `filename`: text not null
+   - `status`: `'A' | 'M' | 'D' | 'E'`
+   - `additions`, `deletions`: integer counts (default 0)
+   - `patch`: nullable text (stored as `null` for binary/patchless files)
+   - `previous_filename`: nullable text (populated for renames)
+   - `created_at`: timestamp with time zone default now()
+   - Unique constraint on `(commit_id, filename)`
+2. **`POST /api/repos/:repoId/commits/:sha/fetch`**:
+   - Protected by `requireUser` (returns `401` if unauthenticated)
+   - Verifies repo ownership via `github_installations.user_id` and confirms commit belongs to the repo (returns `404` otherwise)
+   - Cache check: if `commit_files` already exist for the commit, returns cached files without calling GitHub (`cached: true`)
+   - Otherwise calls GitHub `GET /repos/{full_name}/commits/{sha}` with pagination (`per_page=100`, `page`, `Link` header)
+   - Upserts into `commit_files` by `(commit_id, filename)` and stores binary files with `patch = null`
+   - Returns `{ fetched, inserted, cached, files }`
+   - Handles GitHub `403`, `404`, and `422` errors cleanly as JSON (never `500`)
+3. **`GET /api/repos/:repoId/commits/:sha`**:
+   - Protected by `requireUser` (returns `401` if unauthenticated)
+   - Verifies repo ownership and returns commit metadata plus its stored `commit_files` (`filename`, `status`, `additions`, `deletions`, `patch`, `previousFilename`)
+4. **UI on `/settings`**:
+   - Clicking a commit opens a black-and-white light-theme detail panel displaying commit metadata and changed files with `+/-` counts
+   - Clicking a changed file displays its patch in a `<pre>` block with added lines (`+`) and removed lines (`-`) colored
+
+### Acceptance Checks
+Run the automated Phase 3 test suite:
+```bash
+npm run test:phase3
+```
+
+Checks verified:
+- **Fetching the same commit twice**: Second response returns `cached: true` and makes zero GitHub API calls (logged on server as `[commit/fetch] cache hit ...`).
+- **User isolation (Ownership check)**: Changing `repoId` or `sha` in the URL to access another user's commit returns `404` on both endpoints.
+- **Binary files**: Commits modifying binary files without a `patch` store the row with `patch = null` and do not crash.
+- **Renamed files**: Commits with renamed files store `status = 'renamed'` and populate `previous_filename`.
+- **Signed-out requests**: Both `POST .../fetch` and `GET .../:sha` return `401` when called without a valid session cookie.
+- **GitHub error mapping**: `403`, `404`, and `422` responses from GitHub return clean JSON errors with matching status codes (never `500`).
+
+
 
 

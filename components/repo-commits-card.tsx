@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import {
   ChevronDownIcon,
   GitBranchIcon,
@@ -9,6 +9,7 @@ import {
   RefreshCwIcon,
 } from 'lucide-react'
 import Link from 'next/link'
+import { AuthorColorStyle, CommitDetailPanel, CommitFileItem } from './commit-detail-panel'
 
 export interface CommitItem {
   id: number
@@ -30,9 +31,11 @@ export interface RepoCommitsCardProps {
   initialCommits?: CommitItem[]
   isOpen?: boolean
   onToggle?: () => void
+  selectedCommitKey?: string | null
+  onSelectCommit?: (commit: CommitItem, repo: { repoId: number; fullName: string }) => void
 }
 
-const AUTHOR_PALETTES = [
+const AUTHOR_PALETTES: AuthorColorStyle[] = [
   { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
   { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500' },
   { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
@@ -47,7 +50,7 @@ const AUTHOR_PALETTES = [
   { bg: 'bg-sky-50', text: 'text-sky-700', dot: 'bg-sky-500' },
 ]
 
-function getAuthorColor(author: string) {
+export function getAuthorColor(author: string): AuthorColorStyle {
   let hash = 0
   for (let i = 0; i < author.length; i++) {
     hash = (hash << 5) - hash + author.charCodeAt(i)
@@ -169,6 +172,8 @@ export function RepoCommitsCard({
   initialCommits = [],
   isOpen: controlledIsOpen,
   onToggle: controlledOnToggle,
+  selectedCommitKey,
+  onSelectCommit,
 }: RepoCommitsCardProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen
@@ -238,7 +243,7 @@ export function RepoCommitsCard({
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <ChevronDownIcon
-            className={`w-4 h-4 text-neutral-400 transition-transform duration-300 shrink-0 ${
+            className={`w-4 h-4 text-neutral-400 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${
               isOpen ? 'rotate-180 text-neutral-700' : ''
             }`}
           />
@@ -262,7 +267,7 @@ export function RepoCommitsCard({
           type="button"
           onClick={handleSync}
           disabled={isSyncing}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white text-black hover:bg-neutral-50 disabled:opacity-50 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black disabled:opacity-50 transition-colors cursor-pointer shrink-0"
         >
           <RefreshCwIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
           {isSyncing ? 'Syncing...' : 'Sync'}
@@ -270,11 +275,11 @@ export function RepoCommitsCard({
       </div>
 
       <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${
           isOpen ? 'max-h-[460px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}
       >
-        <div className="h-[360px] flex flex-col border-t border-neutral-100 bg-neutral-50/50 shadow-inner p-4">
+        <div className="h-[360px] flex flex-col bg-neutral-50/50 p-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-200/70 shrink-0">
             <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
               <GitBranchIcon className="w-3.5 h-3.5" />
@@ -297,11 +302,11 @@ export function RepoCommitsCard({
             )}
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1">
             {commitsList.length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <p className="text-xs text-neutral-500 py-3 text-center">
-                  No commits synced yet. Click "Sync" to import commit history.
+                  No commits synced yet. Click &quot;Sync&quot; to import commit history.
                 </p>
               </div>
             ) : filteredCommits.length === 0 ? (
@@ -317,9 +322,19 @@ export function RepoCommitsCard({
                   const author =
                     commit.authorLogin ? `@${commit.authorLogin}` : commit.authorName || commit.authorEmail || 'Unknown'
                   const authorColor = getAuthorColor(author)
+                  const isSelected = selectedCommitKey === `${repo.repoId}:${commit.sha}`
 
-                    return (
-                      <li key={commit.sha} className="py-2.5 flex items-baseline justify-between gap-3 text-xs">
+                  return (
+                    <li key={commit.sha}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          onSelectCommit?.(commit, { repoId: repo.repoId, fullName: repo.fullName })
+                        }
+                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left rounded-lg transition-colors cursor-pointer ${
+                          isSelected ? 'bg-blue-600/10' : 'hover:bg-gray-200/50'
+                        }`}
+                      >
                         <div className="flex items-baseline gap-2 min-w-0">
                           <span className="font-mono text-[11px] bg-blue-600/10 text-blue-600 font-medium px-1.5 py-0.5 rounded shrink-0">
                             {commit.sha.slice(0, 7)}
@@ -330,16 +345,16 @@ export function RepoCommitsCard({
                         </div>
                         <div className="flex items-center gap-2 shrink-0 text-neutral-500 text-[11px]">
                           <span
-                            className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md ${authorColor.bg} ${authorColor.text} shrink-0`}
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md ${authorColor.text} shrink-0`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full ${authorColor.dot} shrink-0`} />
                             <span className="truncate max-w-[90px] sm:max-w-[120px]">{author}</span>
                           </span>
-                          <span>•</span>
                           <span suppressHydrationWarning>{formatCommitDate(commit.committedAt)}</span>
                         </div>
-                      </li>
-                    )
+                      </button>
+                    </li>
+                  )
                 })}
               </ul>
             )}
@@ -350,8 +365,15 @@ export function RepoCommitsCard({
   )
 }
 
+interface SelectedCommitEntry {
+  commit: CommitItem
+  repoId: number
+  repoFullName: string
+}
+
 export function RepoCommitsList({
   repos,
+  header,
 }: {
   repos: Array<{
     id: number
@@ -360,25 +382,199 @@ export function RepoCommitsList({
     isPrivate: boolean
     initialCommits: CommitItem[]
   }>
+  header?: ReactNode
 }) {
   const [openRepoId, setOpenRepoId] = useState<number | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<SelectedCommitEntry | null>(null)
+  const [shouldMountPanel, setShouldMountPanel] = useState(false)
+  const [isPanelExpanded, setIsPanelExpanded] = useState(false)
+  const [detailFiles, setDetailFiles] = useState<CommitFileItem[]>([])
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false)
+  const [filesError, setFilesError] = useState<string | null>(null)
+  const [isDetailCached, setIsDetailCached] = useState(false)
+
+  const activeCommitKeyRef = useRef<string | null>(null)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openFrameRef = useRef<number | null>(null)
+  const panelRef = useRef<HTMLElement>(null)
+
+  function clearPendingTimers() {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+    if (openFrameRef.current !== null) {
+      cancelAnimationFrame(openFrameRef.current)
+      openFrameRef.current = null
+    }
+  }
+
+  useEffect(() => {
+    return () => clearPendingTimers()
+  }, [])
+
+  const handleCloseCommit = useCallback(() => {
+    clearPendingTimers()
+    activeCommitKeyRef.current = null
+    setIsPanelExpanded(false)
+    closeTimerRef.current = setTimeout(() => {
+      setShouldMountPanel(false)
+      setSelectedEntry(null)
+      closeTimerRef.current = null
+    }, 300)
+  }, [])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        handleCloseCommit()
+      }
+    }
+    if (shouldMountPanel) {
+      window.addEventListener('keydown', handleKeyDown)
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [shouldMountPanel, handleCloseCommit])
 
   function handleToggle(repoId: number) {
     setOpenRepoId((current) => (current === repoId ? null : repoId))
   }
 
+  async function handleSelectCommit(
+    commit: CommitItem,
+    repo: { repoId: number; fullName: string },
+  ) {
+    const commitKey = `${repo.repoId}:${commit.sha}`
+    if (activeCommitKeyRef.current === commitKey && isPanelExpanded) {
+      handleCloseCommit()
+      return
+    }
+
+    clearPendingTimers()
+    activeCommitKeyRef.current = commitKey
+    setSelectedEntry({ commit, repoId: repo.repoId, repoFullName: repo.fullName })
+    setDetailFiles([])
+    setFilesError(null)
+    setIsDetailCached(false)
+    setIsLoadingFiles(true)
+
+    if (!shouldMountPanel) {
+      setShouldMountPanel(true)
+      openFrameRef.current = requestAnimationFrame(() => {
+        openFrameRef.current = requestAnimationFrame(() => {
+          setIsPanelExpanded(true)
+          openFrameRef.current = null
+          if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+            panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+          }
+        })
+      })
+    } else {
+      setIsPanelExpanded(true)
+      if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+        panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      }
+    }
+
+    try {
+      const res = await fetch(
+        `/api/repos/${repo.repoId}/commits/${encodeURIComponent(commit.sha)}/fetch`,
+        { method: 'POST' },
+      )
+      const data = await res.json().catch(() => null)
+
+      if (activeCommitKeyRef.current !== commitKey) return
+
+      if (!res.ok) {
+        setFilesError(data?.error || 'Failed to load commit details')
+        return
+      }
+
+      setDetailFiles(Array.isArray(data?.files) ? data.files : [])
+      setIsDetailCached(Boolean(data?.cached))
+    } catch {
+      if (activeCommitKeyRef.current !== commitKey) return
+      setFilesError('Network error while loading commit details')
+    } finally {
+      if (activeCommitKeyRef.current === commitKey) {
+        setIsLoadingFiles(false)
+      }
+    }
+  }
+
   return (
-    <ul className="flex flex-col gap-4">
-      {repos.map((item) => (
-        <li key={item.repoId}>
-          <RepoCommitsCard
-            repo={item}
-            initialCommits={item.initialCommits}
-            isOpen={openRepoId === item.repoId}
-            onToggle={() => handleToggle(item.repoId)}
-          />
-        </li>
-      ))}
-    </ul>
+    <div
+      className={`mx-auto w-full px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${
+        isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
+      }`}
+    >
+      {header}
+
+      <div
+        className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${
+          isPanelExpanded
+            ? 'gap-6 lg:grid-cols-[0.78fr_1fr]'
+            : 'gap-0 lg:grid-cols-[1fr_0fr]'
+        }`}
+      >
+        <section className="min-w-0 flex flex-col gap-4">
+          {repos.length === 0 ? (
+            <p className="text-sm text-neutral-600 py-4">
+              No repositories connected yet.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-4">
+              {repos.map((item) => (
+                <li key={item.repoId}>
+                  <RepoCommitsCard
+                    repo={item}
+                    initialCommits={item.initialCommits}
+                    isOpen={openRepoId === item.repoId}
+                    onToggle={() => handleToggle(item.repoId)}
+                    selectedCommitKey={
+                      selectedEntry && isPanelExpanded
+                        ? `${selectedEntry.repoId}:${selectedEntry.commit.sha}`
+                        : null
+                    }
+                    onSelectCommit={handleSelectCommit}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {shouldMountPanel && selectedEntry && (
+          <aside
+            ref={panelRef}
+            aria-label="Selected commit details"
+            className={`min-w-0 lg:sticky lg:top-6 ${
+              isPanelExpanded
+                ? 'overflow-x-clip p-0.5 -m-0.5'
+                : 'overflow-hidden pointer-events-none'
+            }`}
+          >
+            <div
+              className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${
+                isPanelExpanded
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-0 translate-x-6'
+              }`}
+            >
+              <CommitDetailPanel
+                commit={selectedEntry.commit}
+                repoFullName={selectedEntry.repoFullName}
+                files={detailFiles}
+                isLoading={isLoadingFiles}
+                error={filesError}
+                isCached={isDetailCached}
+                onClose={handleCloseCommit}
+                getAuthorColor={getAuthorColor}
+              />
+            </div>
+          </aside>
+        )}
+      </div>
+    </div>
   )
 }

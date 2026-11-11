@@ -67,39 +67,36 @@ export default async function SettingsPage({
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <main className="mx-auto w-full max-w-2xl p-6 flex flex-col gap-8">
-        {error && (
-          <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
-            {errorMessage(error)}
-          </div>
-        )}
+      <main className="w-full flex-1">
+        <RepoCommitsList
+          repos={reposWithCommits}
+          header={
+            <>
+              {error && (
+                <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
+                  {errorMessage(error)}
+                </div>
+              )}
 
-        <div className="flex items-center justify-between gap-4 pb-4 border-b border-dashed border-black/25">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Repositories</h1>
-            <p className="text-xs text-neutral-600">Connected repositories and GitHub access</p>
-          </div>
-          <form action="/api/github/install" method="GET">
-            <Button
-              type="submit"
-              variant="normal"
-              className="flex gap-2 items-center px-4 py-2"
-            >
-              <GitBranchIcon className="w-4 h-4" />
-              Connect Repository
-            </Button>
-          </form>
-        </div>
-
-        <section className="flex flex-col gap-4">
-          {reposWithCommits.length === 0 ? (
-            <p className="text-sm text-neutral-600 py-4">
-              No repositories connected yet.
-            </p>
-          ) : (
-            <RepoCommitsList repos={reposWithCommits} />
-          )}
-        </section>
+              <div className="flex items-center justify-between pb-4 border-b border-dashed border-black/25">
+                <div>
+                  <h1 className="text-3xl font-semibold tracking-tight">Repositories</h1>
+                  <p className="text-xs text-neutral-600">Connected repositories and GitHub access</p>
+                </div>
+                <form action="/api/github/install" method="GET">
+                  <Button
+                    type="submit"
+                    variant="normal"
+                    className="flex gap-2 items-center px-4 py-2"
+                  >
+                    <GitBranchIcon className="w-4 h-4" />
+                    Connect Repository
+                  </Button>
+                </form>
+              </div>
+            </>
+          }
+        />
       </main>
 
       <footer className="fixed bottom-1 left-1 right-1 z-20 bg-bg/95 backdrop-blur-xs">

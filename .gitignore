@@ -14,3 +14,4 @@ npm-debug.log*
 .DS_Store
 tsconfig.tsbuildinfo
 bun.lock
+scripts/*

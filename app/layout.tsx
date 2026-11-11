@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-skin antialiased select-none text-black min-h-screen`}>
-        <header className="fixed top-0 left-0 right-0 p-5 z-20 pointer-events-auto">
+        <header className="fixed top-0 left-0 right-0 p-5 z-20 pointer-events-none">
           <div className="flex items-center gap-3">
             <span className="font-semibold text-4xl tracking-tight">Penguin</span>
           </div>

@@ -198,3 +198,73 @@ export async function fetchAllRepoCommits(
 
   return allCommits
 }
+
+export interface GitHubCommitFile {
+  filename: string
+  status: string
+  additions: number
+  deletions: number
+  patch?: string
+  previous_filename?: string
+}
+
+export async function fetchCommitFiles(
+  fullName: string,
+  sha: string,
+  token: string,
+): Promise<GitHubCommitFile[]> {
+  let page = 1
+  const allFiles: GitHubCommitFile[] = []
+
+  while (true) {
+    const url = `https://api.github.com/repos/${fullName}/commits/${encodeURIComponent(sha)}?per_page=100&page=${page}`
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'penguin',
+      },
+      cache: 'no-store',
+    })
+
+    if (res.status === 403) {
+      throw new GitHubApiError(403, 'GitHub rate limit exceeded or insufficient permissions')
+    }
+
+    if (res.status === 404) {
+      throw new GitHubApiError(404, 'Commit or repository not found on GitHub')
+    }
+
+    if (res.status === 422) {
+      throw new GitHubApiError(422, 'Invalid or unprocessable commit SHA')
+    }
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new GitHubApiError(res.status, `GitHub API error: ${res.status} ${text}`)
+    }
+
+    const data = await res.json()
+    const pageFiles = Array.isArray(data?.files) ? (data.files as GitHubCommitFile[]) : []
+    console.log(`[github] fetched commit files repo=${fullName} sha=${sha} page=${page} count=${pageFiles.length}`)
+
+    if (pageFiles.length === 0) {
+      break
+    }
+
+    allFiles.push(...pageFiles)
+
+    const linkHeader = res.headers.get('link')
+    if (linkHeader) {
+      if (!linkHeader.includes('rel="next"')) {
+        break
+      }
+    } else if (pageFiles.length < 100) {
+      break
+    }
+
+    page++
+  }
+
+  return allFiles
+}

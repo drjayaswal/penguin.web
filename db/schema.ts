@@ -76,3 +76,30 @@ export const commits = pgTable(
     repoShaUnique: unique('commits_repo_id_sha_unique').on(table.repoId, table.sha),
   })
 )
+
+export type CommitFileStatus = 'A' | 'M' | 'D' | 'E' | 'O'
+
+export const commitFiles = pgTable(
+  'commit_files',
+  {
+    id: serial('id').primaryKey(),
+    commitId: integer('commit_id')
+      .notNull()
+      .references(() => commits.id, { onDelete: 'cascade' }),
+    filename: text('filename').notNull(),
+    status: text('status').$type<CommitFileStatus>().notNull(),
+    additions: integer('additions').notNull().default(0),
+    deletions: integer('deletions').notNull().default(0),
+    patch: text('patch'),
+    previousFilename: text('previous_filename'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    commitFilenameUnique: unique('commit_files_commit_id_filename_unique').on(
+      table.commitId,
+      table.filename,
+    ),
+  })
+)
