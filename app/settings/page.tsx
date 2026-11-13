@@ -130,7 +130,8 @@ export default async function SettingsPage({
                     className="flex gap-2 items-center px-4 py-2"
                   >
                     <GitBranchIcon className="w-4 h-4" />
-                    Connect Repository
+                    <span className="hidden min-[1000px]:block text-white">Connect</span>
+                    <span className="min-[1000px]:hidden text-white">Repository</span>
                   </Button>
                 </form>
               </div>
@@ -139,9 +140,9 @@ export default async function SettingsPage({
         />
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-20 bg-bg/95 backdrop-blur-xs">
+      <footer className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
         <div className="mx-auto w-full flex items-center justify-between gap-4">
-          <div className="flex items-center bg-white/10 rounded-tr-[20px] backdrop-blur-sm p-4 gap-3 min-w-0 max-[449px]:flex-1 max-[449px]:justify-start">
+          <div className="flex items-center bg-white/15 rounded-tr-[20px] backdrop-blur-md border-t border-r border-white/20 p-4 gap-3 min-w-0 pointer-events-auto max-[449px]:flex-1 max-[449px]:justify-start">
             {user.user.avatarUrl && (
               <img
                 src={user.user.avatarUrl}
@@ -155,7 +156,7 @@ export default async function SettingsPage({
               <p className="text-xs text-white/75 truncate">@{user.user.login}</p>
             </div>
           </div>
-          <div className="max-[449px]:flex-1 max-[449px]:flex max-[449px]:justify-center">
+          <div className="pointer-events-auto max-[449px]:flex-1 max-[449px]:flex max-[449px]:justify-center">
             <LogoutButton />
           </div>
         </div>

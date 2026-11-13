@@ -79,7 +79,7 @@ export const commits = pgTable(
   })
 )
 
-export type CommitFileStatus = 'A' | 'M' | 'D' | 'E' | 'O'
+export type CommitFileStatus = 'A' | 'M' | 'D' | 'E' | 'E'
 
 export const commitFiles = pgTable(
   'commit_files',

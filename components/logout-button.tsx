@@ -67,13 +67,13 @@ export function LogoutButton() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className={`w-full max-w-sm bg-white rounded-2xl border border-black/15 shadow-2xl p-6 flex flex-col gap-4 transform transition-all duration-200 ease-out ${
+            className={`w-full max-w-sm bg-white/85 backdrop-blur-md rounded-2xl border border-white/40 shadow-2xl p-6 flex flex-col gap-4 transform transition-all duration-200 ease-out ${
               animating ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-2 opacity-0'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-red-50 text-red-600 border-red-200">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-red-50/80 text-red-600 border-red-200">
                   <LogOutIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -88,13 +88,13 @@ export function LogoutButton() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="text-neutral-400 hover:text-neutral-700 p-1 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer"
+                className="text-neutral-400 hover:text-neutral-700 p-1 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
               >
                 <XIcon className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="border border-dashed border-black/20 rounded-xl p-3 bg-neutral-50/60 text-xs text-neutral-600 leading-relaxed">
+            <div className="border border-dashed border-black/20 rounded-xl p-3 bg-white/50 backdrop-blur-xs text-xs text-neutral-600 leading-relaxed">
               Are you sure you want to sign out? You will need to authenticate with GitHub again to access your connected repositories.
             </div>
 
@@ -102,7 +102,7 @@ export function LogoutButton() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="flex-1 py-2 px-4 rounded-xl text-xs font-medium border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-50 transition-colors cursor-pointer"
+                className="flex-1 py-2 px-4 rounded-xl text-xs font-medium border border-white/40 bg-white/70 backdrop-blur-xs text-neutral-700 hover:bg-white/90 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -111,7 +111,6 @@ export function LogoutButton() {
                 variant='normal'
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
-                // className="flex-1 py-2 px-4 rounded-xl text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <LogOutIcon className="w-3.5 h-3.5" />
                 {isLoggingOut ? 'Leaving...' : 'Sign out'}

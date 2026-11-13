@@ -86,7 +86,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
     if (token.startsWith('**') && token.endsWith('**')) {
       const inner = token.slice(2, -2)
       elements.push(
-        <strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold text-black">
+        <strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold text-white">
           {inner}
         </strong>,
       )
@@ -95,7 +95,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
       elements.push(
         <code
           key={`${keyPrefix}-code-${match.index}`}
-          className="font-mono text-[11px] bg-neutral-100 text-black border border-neutral-200/80 px-1.5 py-0.5 rounded"
+          className="font-mono text-[11px] bg-white/20 text-white border border-white/20 px-1.5 py-0.5 rounded"
         >
           {inner}
         </code>,
@@ -103,7 +103,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
     } else if (token.startsWith('*') && token.endsWith('*')) {
       const inner = token.slice(1, -1)
       elements.push(
-        <em key={`${keyPrefix}-italic-${match.index}`} className="italic text-neutral-700">
+        <em key={`${keyPrefix}-italic-${match.index}`} className="italic text-white/80">
           {inner}
         </em>,
       )
@@ -116,7 +116,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
             href={linkMatch[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline"
+            className="text-blue-400 hover:underline"
           >
             {linkMatch[1]}
           </a>,
@@ -162,8 +162,8 @@ function MarkdownViewer({ content }: { content: string }) {
       blocks.push(
         <ul key={`ul-${key}`} className="my-1.5 space-y-1 pl-0.5">
           {current.items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-xs text-neutral-800 leading-relaxed">
-              <span className="w-1.5 h-1.5 rounded-full bg-neutral-400 mt-1.5 shrink-0" />
+            <li key={idx} className="flex items-start gap-2 text-xs text-white/90 leading-relaxed">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/60 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">{renderInlineMarkdown(item.text, `ul-${key}-${idx}`)}</div>
             </li>
           ))}
@@ -173,8 +173,8 @@ function MarkdownViewer({ content }: { content: string }) {
       blocks.push(
         <ol key={`ol-${key}`} className="my-1.5 space-y-1 pl-0.5">
           {current.items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-1.5 text-xs text-neutral-800 leading-relaxed">
-              <span className="font-mono text-[10px] text-neutral-500 shrink-0 mt-0.5 font-medium">
+            <li key={idx} className="flex items-start gap-1.5 text-xs text-white/90 leading-relaxed">
+              <span className="font-mono text-[10px] text-white/60 shrink-0 mt-0.5 font-medium">
                 {item.num || `${idx + 1}`}.
               </span>
               <div className="flex-1 min-w-0">{renderInlineMarkdown(item.text, `ol-${key}-${idx}`)}</div>
@@ -192,7 +192,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('```')) {
       if (inCodeBlock) {
         blocks.push(
-          <div key={`codeblock-${i}`} className="my-2 rounded-xl bg-neutral-900 text-neutral-100 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
+          <div key={`codeblock-${i}`} className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
             <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
           </div>,
         )
@@ -227,25 +227,25 @@ function MarkdownViewer({ content }: { content: string }) {
       }
 
       blocks.push(
-        <div key={`table-${i}`} className="my-2.5 overflow-x-auto rounded-xl border border-neutral-200/80 bg-white">
+        <div key={`table-${i}`} className="my-2.5 overflow-x-auto rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-neutral-200 bg-neutral-50/80">
+              <tr className="border-b border-white/20 bg-white/15">
                 {headers.map((h, colIdx) => (
                   <th
                     key={colIdx}
-                    className="px-3 py-2 font-semibold text-black text-[11px]"
+                    className="px-3 py-2 font-semibold text-white text-[11px]"
                   >
                     {renderInlineMarkdown(h, `th-${i}-${colIdx}`)}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
+            <tbody className="divide-y divide-white/10">
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="hover:bg-neutral-50/50 transition-colors">
+                <tr key={rIdx} className="hover:bg-white/10 transition-colors">
                   {headers.map((_, colIdx) => (
-                    <td key={colIdx} className="px-3 py-2 text-neutral-800 text-xs">
+                    <td key={colIdx} className="px-3 py-2 text-white/90 text-xs">
                       {renderInlineMarkdown(row[colIdx] || '', `td-${i}-${rIdx}-${colIdx}`)}
                     </td>
                   ))}
@@ -261,7 +261,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('### ')) {
       flushList(i)
       blocks.push(
-        <h4 key={`h3-${i}`} className="text-xs font-semibold text-neutral-800 mt-2 mb-1 flex items-center gap-1.5">
+        <h4 key={`h3-${i}`} className="text-xs font-semibold text-white/80 mt-2 mb-1 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(4), `h3-${i}`)}</span>
         </h4>,
       )
@@ -271,7 +271,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('## ')) {
       flushList(i)
       blocks.push(
-        <h3 key={`h2-${i}`} className="text-xs font-semibold text-black mt-2.5 mb-1 pb-1 border-b border-neutral-100 flex items-center gap-1.5">
+        <h3 key={`h2-${i}`} className="text-xs font-semibold text-white mt-2.5 mb-1 pb-1 border-b border-white/20 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(3), `h2-${i}`)}</span>
         </h3>,
       )
@@ -281,7 +281,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('# ')) {
       flushList(i)
       blocks.push(
-        <h2 key={`h1-${i}`} className="text-sm font-semibold text-black mt-3 mb-1.5 pb-1 border-b border-neutral-100 flex items-center gap-1.5">
+        <h2 key={`h1-${i}`} className="text-sm font-semibold text-white mt-3 mb-1.5 pb-1 border-b border-white/20 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(2), `h1-${i}`)}</span>
         </h2>,
       )
@@ -315,7 +315,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('> ')) {
       flushList(i)
       blocks.push(
-        <blockquote key={`quote-${i}`} className="my-1.5 pl-2.5 border-l-2 border-neutral-300 text-xs italic text-neutral-600">
+        <blockquote key={`quote-${i}`} className="my-1.5 pl-2.5 border-l-2 border-white/40 text-xs italic text-white/70">
           {renderInlineMarkdown(trimmed.slice(2), `quote-${i}`)}
         </blockquote>,
       )
@@ -324,7 +324,7 @@ function MarkdownViewer({ content }: { content: string }) {
 
     flushList(i)
     blocks.push(
-      <p key={`p-${i}`} className="text-xs text-neutral-800 leading-relaxed my-1">
+      <p key={`p-${i}`} className="text-xs text-white/90 leading-relaxed my-1">
         {renderInlineMarkdown(trimmed, `p-${i}`)}
       </p>,
     )
@@ -334,7 +334,7 @@ function MarkdownViewer({ content }: { content: string }) {
 
   if (inCodeBlock && codeBuffer.length > 0) {
     blocks.push(
-      <div key="trailing-code" className="my-2 rounded-xl bg-neutral-900 text-neutral-100 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
+      <div key="trailing-code" className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
         <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
       </div>,
     )
@@ -387,18 +387,18 @@ export function CommitDetailPanel({
   }
 
   return (
-    <div className="flex flex-col rounded-2xl bg-white border border-gray-200/75 shadow-sm overflow-hidden lg:max-h-[calc(100vh-7.5rem)]">
-      <div className="p-3.5 px-4 bg-white border-b border-neutral-100 shrink-0">
+    <div className="flex flex-col rounded-2xl backdrop-blur-md shadow-xl overflow-hidden lg:max-h-[calc(100vh-7.5rem)]">
+      <div className="p-3.5 px-4 bg-white/10 backdrop-blur-sm border-b border-white/20 shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[11px] bg-blue-600/10 text-blue-600 font-medium px-1.5 py-0.5 rounded shrink-0">
+            <span className="font-mono text-[11px] bg-white/20 text-white font-medium px-1.5 py-0.5 rounded shrink-0">
               {commit.sha.slice(0, 7)}
             </span>
-            <span className="text-xs font-medium text-neutral-500 truncate">
+            <span className="text-xs font-medium text-white/70 truncate">
               {repoFullName}
             </span>
             {!isLoading && isCached && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-600 shrink-0">
+              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/20 text-white shrink-0">
                 cached
               </span>
             )}
@@ -407,28 +407,27 @@ export function CommitDetailPanel({
             type="button"
             onClick={onClose}
             aria-label="Close commit details"
-            className="text-neutral-400 hover:text-black p-1 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer shrink-0"
+            className="text-white/60 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer shrink-0"
           >
             <XIcon className="w-4 h-4" />
           </button>
         </div>
 
-        <h2 className="text-sm font-semibold text-black leading-snug break-words mt-2 select-text">
+        <h2 className="text-sm font-semibold text-white leading-snug break-words mt-2 select-text">
           {title}
         </h2>
 
         {body && (
-          <p className="text-xs text-neutral-600 whitespace-pre-wrap mt-1.5 leading-relaxed break-words select-text max-h-24 overflow-y-auto overscroll-contain">
+          <p className="text-xs text-white/80 whitespace-pre-wrap mt-1.5 leading-relaxed break-words select-text max-h-24 overflow-y-auto overscroll-contain">
             {body}
           </p>
         )}
 
         <div className="flex items-center justify-between gap-2 mt-2.5">
-          <div className="flex items-center flex-wrap gap-2 text-[11px] text-neutral-500">
+          <div className="flex items-center flex-wrap gap-2 text-[11px] text-white/70">
             <span
-              className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md ${authorColor.bg} ${authorColor.text} shrink-0`}
+              className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-white/20 text-white shrink-0`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full ${authorColor.dot} shrink-0`} />
               <span>{author}</span>
             </span>
             <span>•</span>
@@ -451,9 +450,9 @@ export function CommitDetailPanel({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col bg-neutral-50/50 shadow-inner p-4">
-        <div className="flex items-center justify-between gap-2 pb-2 mb-3 border-b border-neutral-200/70 shrink-0">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
+      <div className="flex-1 min-h-0 flex flex-col p-4">
+        <div className="flex items-center justify-between gap-2 pb-2 p-2 mb-3 shrink-0">
+          <div className="flex items-center gap-1.5 text-sm font-medium text-white">
             <FileTextIcon className="w-3.5 h-3.5" />
             <span>
               {isLoading
@@ -463,8 +462,8 @@ export function CommitDetailPanel({
           </div>
           {!isLoading && !error && (
             <div className="flex items-center gap-2 font-mono text-xs font-medium shrink-0">
-              <span className="text-green-600">+{totalAdditions}</span>
-              <span className="text-red-600">-{totalDeletions}</span>
+              <span className="bg-green-600 text-white px-2 py-0.5 rounded-md">+{totalAdditions}</span>
+              <span className="bg-red-600 text-white px-2 py-0.5 rounded-md">-{totalDeletions}</span>
             </div>
           )}
         </div>
@@ -473,58 +472,58 @@ export function CommitDetailPanel({
           {summaryError && (
             <div
               role="alert"
-              className={`mb-3 rounded-xl p-3 text-xs bg-white ${summaryError.isRateLimit
-                ? 'border border-black/30 text-black shadow-sm'
-                : 'border border-dashed border-black/25 text-neutral-800'
+              className={`mb-3 rounded-xl p-3 text-xs bg-white/10 backdrop-blur-sm text-white ${summaryError.isRateLimit
+                ? 'border border-red-400/50 text-white shadow-sm'
+                : 'border border-dashed border-white/20 text-white/90'
                 }`}
             >
               {summaryError.isRateLimit && (
-                <p className="font-semibold text-black mb-0.5">Daily limit reached</p>
+                <p className="font-semibold text-red-300 mb-0.5">Daily limit reached</p>
               )}
               <p className="leading-relaxed">{summaryError.message}</p>
             </div>
           )}
 
           {summary && (
-            <div className="mb-3 rounded-xl bg-white border border-gray-200/75 p-3.5 shadow-sm">
-              <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-100">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-black">
+            <div className="mb-3 rounded-xl bg-white/10 backdrop-blur-sm p-3.5 shadow-sm text-white">
+              <div className="flex items-center justify-between gap-2 pb-2 mb-2">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
                   <SparklesIcon className="w-5 h-5 text-white fill-blue-600 shrink-0" />
                   <span>AI Summary</span>
                 </div>
                 <div className="flex items-center flex-wrap gap-1.5 shrink-0">
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-100 text-neutral-700">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20 text-white">
                     {summary.provider} · {summary.model === 'llama-3.3-70b-versatile' || summary.model.toLowerCase() === 'penguin' ? 'Penguin' : summary.model}
                   </span>
                   {summary.cached && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-neutral-200 bg-neutral-50 text-neutral-700">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/20 text-white/90">
                       cached
                     </span>
                   )}
                   {summary.truncated && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200">
                       truncated
                     </span>
                   )}
                 </div>
               </div>
-              <div className="select-text">
+              <div className="select-text text-white">
                 <MarkdownViewer content={summary.text} />
               </div>
             </div>
           )}
 
           {isLoading ? (
-            <div className="py-12 flex items-center justify-center gap-2 text-xs text-neutral-600">
-              <RefreshCwIcon className="w-4 h-4 animate-spin text-neutral-700" />
+            <div className="py-12 flex items-center justify-center gap-2 text-xs text-white/70">
+              <RefreshCwIcon className="w-4 h-4 animate-spin text-white/80" />
               <span>Fetching commit details...</span>
             </div>
           ) : error ? (
-            <div className="border border-dashed border-black/25 bg-white rounded-xl p-4 text-xs text-neutral-800">
+            <div className="border border-dashed border-white/20 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-xs text-white">
               {error}
             </div>
           ) : files.length === 0 ? (
-            <p className="text-xs text-neutral-500 py-8 text-center">
+            <p className="text-xs text-white/60 py-8 text-center">
               No changed files found for this commit.
             </p>
           ) : (
@@ -536,7 +535,7 @@ export function CommitDetailPanel({
                     ? `${file.previousFilename} → ${file.filename}`
                     : file.filename
 
-                let statusBadgeClass = 'bg-neutral-100 text-neutral-600'
+                let statusBadgeClass = 'bg-white/10 text-white'
                 if (file.status === 'added') {
                   statusBadgeClass = 'bg-green-600/10 text-green-600'
                 } else if (file.status === 'removed') {
@@ -546,22 +545,22 @@ export function CommitDetailPanel({
                 return (
                   <li
                     key={file.filename}
-                    className="rounded-xl bg-white border border-gray-200/75 shadow-sm overflow-hidden"
+                    className="rounded-xl shadow-xs overflow-hidden"
                   >
                     <button
                       type="button"
                       onClick={() => toggleFile(file.filename)}
                       aria-expanded={isExpanded}
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors hover:bg-neutral-50/70 cursor-pointer"
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors bg-white/10 backdrop-blur-sm cursor-pointer hover:bg-white/20"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronDownIcon
-                          className={`w-3.5 h-3.5 text-neutral-400 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-neutral-700' : ''
+                          className={`w-3.5 h-3.5 text-white/70 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-white' : ''
                             }`}
                         />
-                        <FileTextIcon className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <FileTextIcon className="w-3.5 h-3.5  text-white/70 shrink-0" />
                         <span
-                          className="font-mono text-xs text-neutral-900 font-medium truncate"
+                          className="font-mono text-xs text-white font-medium truncate"
                           title={displayFilename}
                         >
                           {displayFilename}
@@ -588,24 +587,24 @@ export function CommitDetailPanel({
                         }`}
                     >
                       <div className="min-h-0 overflow-hidden">
-                        <div className="border-t border-neutral-100 bg-neutral-50/70 p-2.5">
+                        <div className="bg-white/10 backdrop-blur-sm p-2.5">
                           {file.patch === null || file.patch === undefined ? (
-                            <p className="text-xs text-neutral-500 font-mono py-2 px-1">
+                            <p className="text-xs text-white/60 font-mono py-2 px-1">
                               Binary file or patch not available.
                             </p>
                           ) : (
                             <pre
                               tabIndex={isExpanded ? 0 : -1}
-                              className="p-2 bg-white border border-neutral-200/75 rounded-lg overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed font-mono select-text"
+                              className="p-2 bg-white/10 backdrop-blur-md rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed font-mono select-text text-white/90 border border-white/10"
                             >
                               {file.patch.split('\n').map((line, idx) => {
-                                let lineClass = 'text-neutral-800'
+                                let lineClass = 'text-white'
                                 if (line.startsWith('+') && !line.startsWith('+++')) {
-                                  lineClass = 'bg-green-600/10 text-green-600'
+                                  lineClass = 'bg-green-600/50 text-white'
                                 } else if (line.startsWith('-') && !line.startsWith('---')) {
-                                  lineClass = 'bg-red-600/10 text-red-600'
+                                  lineClass = 'bg-red-600/50 text-white'
                                 } else if (line.startsWith('@@')) {
-                                  lineClass = 'bg-neutral-100 text-neutral-500'
+                                  lineClass = 'bg-blue-600/50 text-white'
                                 }
                                 return (
                                   <div key={idx} className={`px-2 whitespace-pre ${lineClass}`}>

@@ -27,7 +27,7 @@ function normalizeFileStatus(status?: string): CommitFileStatus {
   ) {
     return status
   }
-  return 'O'
+  return 'E'
 }
 
 export async function POST(

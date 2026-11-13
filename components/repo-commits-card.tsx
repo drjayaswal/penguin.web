@@ -2,6 +2,7 @@
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import {
+  CheckIcon,
   ChevronDownIcon,
   GitBranchIcon,
   GlobeIcon,
@@ -44,18 +45,18 @@ export interface RepoCommitsCardProps {
 }
 
 const AUTHOR_PALETTES: AuthorColorStyle[] = [
-  { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
-  { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500' },
-  { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  { bg: 'bg-amber-50', text: 'text-amber-800', dot: 'bg-amber-500' },
-  { bg: 'bg-rose-50', text: 'text-rose-700', dot: 'bg-rose-500' },
-  { bg: 'bg-indigo-50', text: 'text-indigo-700', dot: 'bg-indigo-500' },
-  { bg: 'bg-teal-50', text: 'text-teal-700', dot: 'bg-teal-500' },
-  { bg: 'bg-cyan-50', text: 'text-cyan-800', dot: 'bg-cyan-500' },
-  { bg: 'bg-orange-50', text: 'text-orange-800', dot: 'bg-orange-500' },
-  { bg: 'bg-fuchsia-50', text: 'text-fuchsia-700', dot: 'bg-fuchsia-500' },
-  { bg: 'bg-lime-50', text: 'text-lime-800', dot: 'bg-lime-500' },
-  { bg: 'bg-sky-50', text: 'text-sky-700', dot: 'bg-sky-500' },
+  { bg: 'bg-blue-500/20', text: 'text-blue-300', dot: 'bg-blue-400' },
+  { bg: 'bg-purple-500/20', text: 'text-purple-300', dot: 'bg-purple-400' },
+  { bg: 'bg-emerald-500/20', text: 'text-emerald-300', dot: 'bg-emerald-400' },
+  { bg: 'bg-amber-500/20', text: 'text-amber-300', dot: 'bg-amber-400' },
+  { bg: 'bg-rose-500/20', text: 'text-rose-300', dot: 'bg-rose-400' },
+  { bg: 'bg-indigo-500/20', text: 'text-indigo-300', dot: 'bg-indigo-400' },
+  { bg: 'bg-teal-500/20', text: 'text-teal-300', dot: 'bg-teal-400' },
+  { bg: 'bg-cyan-500/20', text: 'text-cyan-300', dot: 'bg-cyan-400' },
+  { bg: 'bg-orange-500/20', text: 'text-orange-300', dot: 'bg-orange-400' },
+  { bg: 'bg-fuchsia-500/20', text: 'text-fuchsia-300', dot: 'bg-fuchsia-400' },
+  { bg: 'bg-lime-500/20', text: 'text-lime-300', dot: 'bg-lime-400' },
+  { bg: 'bg-sky-500/20', text: 'text-sky-300', dot: 'bg-sky-400' },
 ]
 
 export function getAuthorColor(author: string): AuthorColorStyle {
@@ -83,16 +84,20 @@ function AuthorSelect({
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    if (!isOpen) return
+    function handlePointerDown(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false)
       }
     }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setIsOpen(false)
     }
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('keydown', handleKey)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('keydown', handleKey)
     }
   }, [isOpen])
 
@@ -100,9 +105,9 @@ function AuthorSelect({
     selectedAuthor === 'all'
       ? commitsList.length
       : commitsList.filter((c) => {
-          const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
-          return a === selectedAuthor
-        }).length
+        const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
+        return a === selectedAuthor
+      }).length
 
   const selectedLabel = selectedAuthor === 'all' ? 'All' : selectedAuthor
 
@@ -111,36 +116,44 @@ function AuthorSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-between gap-2 px-2.5 py-1 text-xs font-medium rounded-xl bg-white text-black transition-all cursor-pointer"
+        className="inline-flex items-center justify-between gap-2 px-2.5 py-1 text-xs font-medium rounded-lg bg-white/10 backdrop-blur-md text-white shadow-xs transition-all cursor-pointer"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         <span className="truncate max-w-[130px] sm:max-w-[160px]">{selectedLabel}</span>
-        <span className="text-[11px] text-neutral-400">({selectedCount})</span>
+        <span className="text-[11px] text-white/60">({selectedCount})</span>
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 shrink-0 ${
-            isOpen ? 'rotate-180' : ''
-          }`}
+          className={`w-3.5 h-3.5 text-white/70 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180 text-white' : ''
+            }`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 z-30 min-w-[200px] max-w-[260px] bg-white border border-neutral-200 rounded-xl shadow-lg py-1 max-h-56 overflow-y-auto">
-          <button
-            type="button"
-            onClick={() => {
-              onSelect('all')
-              setIsOpen(false)
-            }}
-            className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-left transition-colors cursor-pointer ${
-              selectedAuthor === 'all'
-                ? 'bg-neutral-100 font-semibold text-black'
-                : 'text-neutral-700 hover:bg-neutral-50'
-            }`}
-          >
-            <span className="truncate">All</span>
-            <span className="text-[11px] text-neutral-500 shrink-0">({commitsList.length})</span>
-          </button>
+        <ul
+          role="listbox"
+          className="absolute right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl bg-white shadow-2xl py-1 min-w-[180px] max-w-[260px] max-h-56 overflow-y-auto"
+        >
+          <li role="option" aria-selected={selectedAuthor === 'all'}>
+            <button
+              type="button"
+              onClick={() => {
+                onSelect('all')
+                setIsOpen(false)
+              }}
+              className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${selectedAuthor === 'all'
+                  ? 'bg-blue-600 font-semibold text-white'
+                  : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
+                }`}
+            >
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="truncate">All</span>
+                <span className={`text-[11px] shrink-0 ${selectedAuthor === 'all' ? 'text-white' : 'text-black'}`}>
+                  ({commitsList.length})
+                </span>
+              </div>
+              {selectedAuthor === 'all' && <CheckIcon className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
+            </button>
+          </li>
 
           {authors.map((author) => {
             const count = commitsList.filter((c) => {
@@ -151,25 +164,30 @@ function AuthorSelect({
             const isSelected = selectedAuthor === author
 
             return (
-              <button
-                key={author}
-                type="button"
-                onClick={() => {
-                  onSelect(author)
-                  setIsOpen(false)
-                }}
-                className={`w-full flex items-center justify-between gap-2 px-3 py-1.5 text-xs text-left transition-colors cursor-pointer ${
-                  isSelected
-                    ? 'bg-neutral-100 font-semibold text-black'
-                    : 'text-neutral-700 hover:bg-neutral-50'
-                }`}
-              >
-                <span className="truncate">{author}</span>
-                <span className="text-[11px] text-neutral-500 shrink-0">({count})</span>
-              </button>
+              <li key={author} role="option" aria-selected={isSelected}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelect(author)
+                    setIsOpen(false)
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${isSelected
+                      ? 'bg-blue-600 font-semibold text-white'
+                      : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
+                    }`}
+                >
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="truncate">{author}</span>
+                    <span className={`text-[11px] shrink-0 ${isSelected ? 'text-white/80' : 'text-neutral-500'}`}>
+                      ({count})
+                    </span>
+                  </div>
+                  {isSelected && <CheckIcon className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
+                </button>
+              </li>
             )
           })}
-        </div>
+        </ul>
       )}
     </div>
   )
@@ -238,34 +256,33 @@ export function RepoCommitsCard({
   const filteredCommits =
     selectedAuthor !== 'all'
       ? commitsList.filter((c) => {
-          const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
-          return a === selectedAuthor
-        })
+        const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
+        return a === selectedAuthor
+      })
       : commitsList
 
   return (
-    <div className="flex flex-col rounded-2xl bg-white border border-gray-200/75 shadow-sm overflow-hidden">
+    <div className="flex flex-col rounded-2xl backdrop-blur-md shadow-lg overflow-hidden transition-all duration-200">
       <div
         onClick={toggleOpen}
-        className="flex items-center justify-between gap-3 p-3 px-4 bg-white cursor-pointer select-none hover:bg-neutral-50/70 transition-colors"
+        className="flex items-center justify-between gap-3 p-3 px-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm cursor-pointer select-none transition-colors"
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <ChevronDownIcon
-            className={`w-4 h-4 text-neutral-400 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${
-              isOpen ? 'rotate-180 text-neutral-700' : ''
-            }`}
+            className={`w-4 h-4 text-white/70 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isOpen ? 'rotate-180 text-white' : ''
+              }`}
           />
           {repo.isPrivate ? (
-            <LockIcon className="h-4 w-4 shrink-0 text-neutral-500" aria-label="Private repository" />
+            <LockIcon className="h-4 w-4 shrink-0 text-white/70" aria-label="Private repository" />
           ) : (
-            <GlobeIcon className="h-4 w-4 shrink-0 text-neutral-500" aria-label="Public repository" />
+            <GlobeIcon className="h-4 w-4 shrink-0 text-white/70" aria-label="Public repository" />
           )}
           <Link
             href={`https://github.com/${repo.fullName}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="text-sm font-semibold truncate hover:text-blue-600 transition-colors"
+            className="text-sm font-semibold truncate text-white hover:text-blue-400 transition-colors"
           >
             {repo.fullName.split('/')[1] || repo.fullName}
           </Link>
@@ -275,7 +292,7 @@ export function RepoCommitsCard({
           type="button"
           onClick={handleSync}
           disabled={isSyncing}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black disabled:opacity-50 transition-colors cursor-pointer shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50 transition-colors cursor-pointer shrink-0"
         >
           <RefreshCwIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
           {isSyncing ? 'Syncing...' : 'Sync'}
@@ -283,23 +300,22 @@ export function RepoCommitsCard({
       </div>
 
       <div
-        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${
-          isOpen ? 'max-h-[460px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-        }`}
+        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${isOpen ? 'max-h-[460px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+          }`}
       >
-        <div className="h-[360px] flex flex-col bg-neutral-50/50 p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-200/70 shrink-0">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
+        <div className="h-[360px] flex flex-col bg-white/10 backdrop-blur-sm p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-white/20 shrink-0">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-white/80">
               <GitBranchIcon className="w-3.5 h-3.5" />
               <span>Latest Commits</span>
-              <span className="text-[11px] text-neutral-400">
+              <span className="text-[11px] text-white/60">
                 ({filteredCommits.length}{filteredCommits.length !== commitsList.length ? ` of ${commitsList.length}` : ''})
               </span>
             </div>
 
             {authors.length > 0 && (
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-neutral-500 font-medium">Author:</span>
+                <span className="text-[11px] text-white/70 font-medium">Author:</span>
                 <AuthorSelect
                   authors={authors}
                   commitsList={commitsList}
@@ -313,23 +329,22 @@ export function RepoCommitsCard({
           <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1">
             {commitsList.length === 0 ? (
               <div className="h-full flex items-center justify-center">
-                <p className="text-xs text-neutral-500 py-3 text-center">
+                <p className="text-xs text-white/60 py-3 text-center">
                   No commits synced yet. Click &quot;Sync&quot; to import commit history.
                 </p>
               </div>
             ) : filteredCommits.length === 0 ? (
               <div className="h-full flex items-center justify-center">
-                <p className="text-xs text-neutral-500 py-3 text-center">
+                <p className="text-xs text-white/60 py-3 text-center">
                   No commits found for the selected author.
                 </p>
               </div>
             ) : (
-              <ul className="flex flex-col divide-y divide-neutral-200/60">
+              <ul className="flex flex-col divide-y divide-white/10">
                 {filteredCommits.map((commit) => {
                   const firstLine = (commit.message || '').split('\n')[0]
                   const author =
                     commit.authorLogin ? `@${commit.authorLogin}` : commit.authorName || commit.authorEmail || 'Unknown'
-                  const authorColor = getAuthorColor(author)
                   const isSelected = selectedCommitKey === `${repo.repoId}:${commit.sha}`
 
                   return (
@@ -339,25 +354,19 @@ export function RepoCommitsCard({
                         onClick={() =>
                           onSelectCommit?.(commit, { repoId: repo.repoId, fullName: repo.fullName })
                         }
-                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left rounded-lg transition-colors cursor-pointer ${
-                          isSelected ? 'bg-blue-600/10' : 'hover:bg-gray-200/50'
-                        }`}
+                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer ${isSelected ? 'bg-white/30' : 'hover:bg-white/10'
+                          }`}
                       >
                         <div className="flex items-baseline gap-2 min-w-0">
-                          <span className="font-mono text-[11px] bg-blue-600/10 text-blue-600 font-medium px-1.5 py-0.5 rounded shrink-0">
+                          <span className="text-[11px] text-white bg-white/20 font-bold px-1.5 py-0.5 rounded shrink-0">
                             {commit.sha.slice(0, 7)}
                           </span>
-                          <span className="text-neutral-900 font-medium truncate" title={commit.message}>
+                          <span className="text-white font-medium truncate" title={commit.message}>
                             {firstLine}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0 text-neutral-500 text-[11px]">
-                          <span
-                            className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md ${authorColor.text} shrink-0`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${authorColor.dot} shrink-0`} />
-                            <span className="truncate max-w-[90px] sm:max-w-[120px]">{author}</span>
-                          </span>
+                        <div className="flex items-center gap-2 shrink-0 text-white/70 text-[11px]">
+                          <span className="truncate max-w-[90px] sm:max-w-[120px] text-white bg-white/20 px-2 py-0.5 rounded-md">{author}</span>
                           <span suppressHydrationWarning>{formatCommitDate(commit.committedAt)}</span>
                         </div>
                       </button>
@@ -614,18 +623,16 @@ export function RepoCommitsList({
 
   return (
     <div
-      className={`mx-auto w-full px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${
-        isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
-      }`}
+      className={`mx-auto w-full px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
+        }`}
     >
       {header}
 
       <div
-        className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${
-          isPanelExpanded
+        className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
             ? 'gap-6 lg:grid-cols-[0.78fr_1fr]'
             : 'gap-0 lg:grid-cols-[1fr_0fr]'
-        }`}
+          }`}
       >
         <section className="min-w-0 flex flex-col gap-4">
           <AiSettingsCard
@@ -641,7 +648,7 @@ export function RepoCommitsList({
           />
 
           {repos.length === 0 ? (
-            <p className="text-sm text-neutral-600 py-4">
+            <p className="text-sm text-white/70 py-4">
               No repositories connected yet.
             </p>
           ) : (
@@ -670,18 +677,16 @@ export function RepoCommitsList({
           <aside
             ref={panelRef}
             aria-label="Selected commit details"
-            className={`min-w-0 lg:sticky lg:top-6 ${
-              isPanelExpanded
+            className={`min-w-0 lg:sticky lg:top-6 ${isPanelExpanded
                 ? 'overflow-x-clip p-0.5 -m-0.5'
                 : 'overflow-hidden pointer-events-none'
-            }`}
+              }`}
           >
             <div
-              className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${
-                isPanelExpanded
+              className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
                   ? 'opacity-100 translate-x-0'
                   : 'opacity-0 translate-x-6'
-              }`}
+                }`}
             >
               <CommitDetailPanel
                 commit={selectedEntry.commit}

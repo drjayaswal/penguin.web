@@ -7,6 +7,7 @@ import {
   EyeIcon,
   EyeOffIcon,
   KeyRoundIcon,
+  RefreshCwIcon,
   SparklesIcon,
   Trash2Icon,
 } from 'lucide-react'
@@ -38,22 +39,6 @@ function getProviderLabel(providerId: string | null, fallbackLabel: string): str
   if (!providerId) return fallbackLabel
   const key = providerId.toLowerCase() as AiProviderId
   return AI_PROVIDERS[key]?.label ?? providerId
-}
-
-function toUiModel(model: string | null | undefined, defaultModel: string): string {
-  if (!model) return 'Penguin'
-  if (model === defaultModel || model === 'llama-3.3-70b-versatile' || model.toLowerCase() === 'penguin') {
-    return 'Penguin'
-  }
-  return model
-}
-
-function toApiModel(uiModel: string, provider: AiProviderId, defaultModel: string): string {
-  const trimmed = uiModel.trim()
-  if (!trimmed || trimmed.toLowerCase() === 'penguin') {
-    return provider === 'groq' ? defaultModel : AI_PROVIDERS[provider]?.defaultModel ?? defaultModel
-  }
-  return trimmed
 }
 
 interface ProviderDropdownProps {
@@ -90,11 +75,11 @@ function ProviderDropdown({ id, value, onChange }: ProviderDropdownProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="h-8 w-full flex items-center justify-between rounded-lg bg-neutral-50/70 px-2.5 text-xs text-black hover:bg-white focus:bg-white focus:outline-none transition-colors cursor-pointer"
+        className="h-8 w-full flex items-center justify-between rounded-lg bg-white/10 backdrop-blur-sm px-2.5 text-xs text-white transition-colors cursor-pointer"
       >
         <span className="truncate">{AI_PROVIDERS[value].label}</span>
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 text-neutral-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 text-white transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -102,7 +87,7 @@ function ProviderDropdown({ id, value, onChange }: ProviderDropdownProps) {
         <ul
           role="listbox"
           aria-labelledby={id}
-          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg bg-white shadow-lg py-1"
+          className="absolute left-0 right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl bg-white shadow-2xl py-1 min-w-[140px]"
         >
           {SUPPORTED_AI_PROVIDER_IDS.map((optionId) => {
             const selected = optionId === value
@@ -114,11 +99,12 @@ function ProviderDropdown({ id, value, onChange }: ProviderDropdownProps) {
                     onChange(optionId)
                     setOpen(false)
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs text-left cursor-pointer transition-colors ${selected ? 'bg-neutral-100 text-black' : 'text-neutral-700 hover:bg-neutral-50'
-                    }`}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${
+                    selected ? 'bg-blue-600 font-semibold text-white' : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
+                  }`}
                 >
                   <span>{AI_PROVIDERS[optionId].label}</span>
-                  {selected && <CheckIcon className="w-3.5 h-3.5" />}
+                  {selected && <CheckIcon className="w-3.5 h-3.5 text-white" />}
                 </button>
               </li>
             )
@@ -140,13 +126,11 @@ export function AiSettingsCard({
   const [settings, setSettings] = useState<AiSettingsState>(initialSettings)
   const initialProvider =
     (initialSettings.provider as AiProviderId | null) ?? defaultProviderId
-  const initialModelValue = toUiModel(
+  const initialModelValue =
     initialSettings.model ??
     (initialProvider === defaultProviderId
       ? defaultModel
-      : AI_PROVIDERS[initialProvider]?.defaultModel ?? defaultModel),
-    defaultModel,
-  )
+      : AI_PROVIDERS[initialProvider]?.defaultModel ?? defaultModel)
 
   const [provider, setProvider] = useState<AiProviderId>(initialProvider)
   const [model, setModel] = useState<string>(initialModelValue)
@@ -162,11 +146,7 @@ export function AiSettingsCard({
 
   function handleProviderChange(nextProvider: AiProviderId) {
     setProvider(nextProvider)
-    if (nextProvider === 'groq') {
-      setModel('Penguin')
-    } else {
-      setModel(AI_PROVIDERS[nextProvider]?.defaultModel ?? '')
-    }
+    setModel(AI_PROVIDERS[nextProvider]?.defaultModel ?? '')
     setStatusMessage(null)
   }
 
@@ -180,7 +160,7 @@ export function AiSettingsCard({
     setIsSaving(true)
     setStatusMessage(null)
 
-    const finalModel = toApiModel(model, provider, defaultModel)
+    const finalModel = model.trim() || AI_PROVIDERS[provider]?.defaultModel || defaultModel
 
     try {
       const res = await fetch('/api/me/ai-settings', {
@@ -208,7 +188,7 @@ export function AiSettingsCard({
         last4: data.last4,
       }
       setSettings(updated)
-      setModel(toUiModel(data.model, defaultModel))
+      setModel(data.model)
       setApiKey('')
       setShowKey(false)
       setStatusMessage({
@@ -251,7 +231,7 @@ export function AiSettingsCard({
       }
       setSettings(next)
       setProvider(defaultProviderId)
-      setModel('Penguin')
+      setModel(defaultModel)
       setApiKey('')
       setShowKey(false)
       setStatusMessage({
@@ -270,7 +250,7 @@ export function AiSettingsCard({
   }
 
   return (
-    <div className="rounded-2xl bg-white overflow-visible transition-all duration-200">
+    <div className="backdrop-blur-md shadow-lg transition-all duration-200 relative z-30">
       <div
         role="button"
         tabIndex={0}
@@ -282,22 +262,23 @@ export function AiSettingsCard({
             setIsOpen((prev) => !prev)
           }
         }}
-        className="flex items-center justify-between p-3.5 px-4 cursor-pointer select-none hover:bg-neutral-50/50 transition-colors rounded-2xl"
+        className={`flex items-center justify-between p-3.5 px-4 cursor-pointer select-none bg-white/10 backdrop-blur-sm ${isOpen ? "rounded-t-2xl" : "rounded-2xl"} transition-all duration-400`}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <SparklesIcon className="w-5 h-5 text-white fill-blue-600 shrink-0" />
-          <h2 id="ai-settings-heading" className="text-sm font-semibold text-black shrink-0">
+          <SparklesIcon className="w-4 h-4 text-transparent fill-white shrink-0" />
+          <h2 id="ai-settings-heading" className="text-sm font-semibold text-white shrink-0">
             AI Summaries
           </h2>
-          <span className="text-neutral-300 shrink-0">·</span>
           {settings.configured ? (
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-neutral-100 text-neutral-800 px-2 py-0.5 rounded-md truncate">
+            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-white/80 backdrop-blur-sm text-neutral-800 px-2 py-0.5 rounded-md truncate border border-white/50">
               <KeyRoundIcon className="w-3 h-3 shrink-0" />
               <span>
                 {getProviderLabel(settings.provider, 'Custom')} · ••••{settings.last4}
               </span>
             </span>
-          ) : null}
+          ) : (
+            null
+          )}
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -315,19 +296,21 @@ export function AiSettingsCard({
               <span>{isDeleting ? 'Removing...' : 'Remove'}</span>
             </button>
           )}
-          <span className="text-xs font-medium text-neutral-500 hidden sm:inline">
+          <span className="text-xs font-medium text-white hidden sm:inline">
             {settings.configured ? (isOpen ? 'Done' : 'Edit') : (isOpen ? 'Close' : 'Add')}
           </span>
           <ChevronDownIcon
-            className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${isOpen ? 'rotate-180 text-black' : ''
-              }`}
+            className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${
+              isOpen ? 'rotate-180 text-black' : ''
+            }`}
           />
         </div>
       </div>
 
       <div
-        className={`grid transition-[grid-template-rows,opacity] duration-200 ease-in-out motion-reduce:transition-none ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-          }`}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none ${
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+        }`}
       >
         <div className="min-h-0">
           <form
@@ -335,11 +318,11 @@ export function AiSettingsCard({
             onClick={(e) => e.stopPropagation()}
             aria-labelledby="ai-settings-heading"
             autoComplete="off"
-            className="p-4 pt-3 flex flex-col gap-3"
+            className="p-4 bg-white/10 backdrop-blur-sm rounded-b-2xl flex flex-col gap-3"
           >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
               <div className="flex flex-col gap-1">
-                <label htmlFor="ai-provider" className="text-[11px] font-medium text-neutral-600">
+                <label htmlFor="ai-provider" className="text-[11px] font-medium text-white">
                   Provider
                 </label>
                 <ProviderDropdown
@@ -350,7 +333,7 @@ export function AiSettingsCard({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label htmlFor="ai-model" className="text-[11px] font-medium text-neutral-600">
+                <label htmlFor="ai-model" className="text-[11px] font-medium text-white">
                   Model
                 </label>
                 <input
@@ -359,14 +342,14 @@ export function AiSettingsCard({
                   type="text"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  placeholder={provider === 'groq' ? 'Penguin' : AI_PROVIDERS[provider]?.defaultModel}
+                  placeholder={AI_PROVIDERS[provider]?.defaultModel}
                   autoComplete="off"
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
                   data-form-type="other"
                   data-lpignore="true"
-                  className="h-8 rounded-lg bg-neutral-50/70 px-2.5 text-xs font-mono text-black placeholder:text-neutral-400 focus:bg-white focus:outline-none transition-colors"
+                  className="h-8 rounded-lg bg-white/10 backdrop-blur-sm px-2.5 text-xs font-mono text-white placeholder:text-neutral-400 focus:outline-none transition-colors"
                 />
               </div>
 
@@ -394,26 +377,33 @@ export function AiSettingsCard({
                     data-1p-ignore="true"
                     aria-invalid={statusMessage?.type === 'error' ? 'true' : undefined}
                     aria-describedby="ai-key-help"
-                    className="h-8 w-full rounded-lg bg-neutral-50/70 pl-2.5 pr-8 text-xs font-mono text-black placeholder:text-neutral-400 focus:bg-white focus:outline-none transition-colors"
+                    className="h-8 w-full rounded-lg bg-white/10 backdrop-blur-sm pl-2.5 pr-8 text-xs font-mono text-white placeholder:text-neutral-400 focus:outline-none transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKey((prev) => !prev)}
                     aria-pressed={showKey}
                     aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                    className="absolute right-2 p-1 text-neutral-400 hover:text-black cursor-pointer"
+                    className="absolute right-2 p-1 text-white/60 hover:text-white cursor-pointer"
                   >
                     {showKey ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
+            </div>
 
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
               <button
                 type="submit"
                 disabled={isSaving}
-                className="h-8 w-full px-4 rounded-lg text-xs font-medium bg-black text-white hover:bg-neutral-800 disabled:opacity-50 transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-white hover:text-blue-600 disabled:opacity-50 transition-colors cursor-pointer shrink-0 w-full sm:w-auto"
               >
-                {isSaving ? 'Saving...' : 'Save AI Key'}
+                {isSaving ? (
+                  <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <KeyRoundIcon className="w-4 h-4" />
+                )}
+                <span>{isSaving ? 'Saving...' : 'Save AI Key'}</span>
               </button>
             </div>
 
@@ -421,10 +411,11 @@ export function AiSettingsCard({
               <p
                 role="status"
                 aria-live="polite"
-                className={`text-xs px-2.5 py-1.5 rounded-lg ${statusMessage.type === 'error'
-                  ? 'bg-red-50/50 text-red-700'
-                  : 'bg-neutral-50 text-neutral-700'
-                  }`}
+                className={`text-xs px-2.5 py-1.5 rounded-lg border border-white/40 backdrop-blur-sm ${
+                  statusMessage.type === 'error'
+                    ? 'bg-red-50/80 text-red-700'
+                    : 'bg-white/80 text-neutral-700'
+                }`}
               >
                 {statusMessage.text}
               </p>
