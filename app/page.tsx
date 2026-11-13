@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { cookies } from 'next/headers'
-import Image from 'next/image'
 
 export default async function HomePage({
   searchParams,
@@ -15,29 +14,22 @@ export default async function HomePage({
   const error = searchParams.error ?? null
 
   return (
-    <div className="fixed left-1/2 min-h-screen overflow-hidden flex flex-col items-center justify-end">
+    <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
       {error && (
-        <div className="absolute top-24 left-0 right-0 flex justify-center px-4">
+        <div className="absolute top-24 left-0 right-0 flex justify-center px-4 pointer-events-none">
           <p className="text-sm text-red-700 bg-red-50 border border-red-700 px-3 py-1.5 rounded">
             {errorMessage(error)}
           </p>
         </div>
       )}
 
-      <form action="/api/auth/github" method="GET" className="flex flex-col items-center">
+      <form action="/api/auth/github" method="GET" className="pointer-events-auto">
         <button
           type="submit"
-          className="relative overflow-hidden group transition-transform translate-y-1 active:translate-y-3 cursor-pointer"
-          aria-label="Sign in with GitHub"
+          aria-label="Connect with GitHub"
+          className='mt-40 text-white font-medium hover:scale-105 transition-all duration-200'
         >
-          <Image
-            src="/Penguin.png"
-            alt="Penguin logo"
-            className="w-28 invert h-auto object-contain"
-            width={120}
-            height={50}
-            priority
-          />
+          Connect
         </button>
       </form>
     </div>

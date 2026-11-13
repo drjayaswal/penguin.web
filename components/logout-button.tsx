@@ -51,12 +51,11 @@ export function LogoutButton() {
     <>
       <Button
         type="button"
-        variant="destructive"
+        variant="normal"
         onClick={() => setIsOpen(true)}
-        className="w-full flex justify-center items-center gap-2 sm:w-auto"
+        className="w-full flex justify-center items-center sm:w-auto hover:bg-transparent hover:shadow-none"
       >
-        <LogOutIcon className="w-4 h-4" />
-        Leave
+        <LogOutIcon className="w-6 h-6" />
       </Button>
 
       {mounted && (
@@ -107,15 +106,16 @@ export function LogoutButton() {
               >
                 Cancel
               </button>
-              <button
+              <Button
                 type="button"
+                variant='normal'
                 onClick={handleConfirmLogout}
                 disabled={isLoggingOut}
-                className="flex-1 py-2 px-4 rounded-xl text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                // className="flex-1 py-2 px-4 rounded-xl text-xs font-medium bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <LogOutIcon className="w-3.5 h-3.5" />
                 {isLoggingOut ? 'Leaving...' : 'Sign out'}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -336,6 +336,53 @@ Checks verified:
 - **Signed-out requests**: Both `POST .../fetch` and `GET .../:sha` return `401` when called without a valid session cookie.
 - **GitHub error mapping**: `403`, `404`, and `422` responses from GitHub return clean JSON errors with matching status codes (never `500`).
 
+---
+
+## Phase 5 — AI Commit Summaries, Providers & Daily Limits
+
+### Environment Variables
+Add these variables to `.env` (see `.env.example`):
+- `DEFAULT_PROVIDER=groq` (`groq` | `openai` | `openrouter` | `anthropic`)
+- `GROQ_API_KEY=...` (or matching key env var for your chosen `DEFAULT_PROVIDER`)
+- `DEFAULT_AI_MODEL=llama-3.3-70b-versatile`
+- `AI_DEFAULT_DAILY_LIMIT=10`
+- `ENCRYPTION_KEY=...` (32-byte base64 key, e.g. generated with `openssl rand -base64 32`)
+
+Startup fails cleanly in `lib/env.ts` if `DEFAULT_PROVIDER` is set without its matching API key env var.
+
+### Features Implemented
+1. **Provider Layer (`lib/ai/`)**:
+   - Unified `summarize({ system, prompt, model, apiKey })` returning `{ text, inputTokens, outputTokens }`
+   - `openai-compatible` adapter supporting `groq` (`https://api.groq.com/openai/v1`), `openai`, and `openrouter`
+   - `anthropic` adapter (`POST https://api.anthropic.com/v1/messages`)
+   - Provider registry mapping provider names to adapters, base URLs, and overridable default models
+   - Prompt builder truncating per-file patches and total prompt text to 30,000 chars (`truncated: true` when cut)
+2. **Database Schema & Encryption (`db/schema.ts`, `lib/crypto.ts`)**:
+   - `user_ai_settings`, `commit_summaries`, and `ai_usage` tables
+   - AES-256-GCM encryption with `ENCRYPTION_KEY` and a random 12-byte IV (`iv:tag:ciphertext`)
+3. **API Routes (`requireUser` on all)**:
+   - `PUT /api/me/ai-settings`, `GET /api/me/ai-settings`, `DELETE /api/me/ai-settings`
+   - `GET /api/me/ai-usage` returning `{ used, limit, resetsAt }`
+   - `POST /api/repos/:repoId/commits/:sha/summary` with ownership checks, Phase 3 file fallback, summary caching, atomic daily limit enforcement + automatic refund on failure, and provider error mapping (`"AI provider rejected the key"` on 401/403; `502` retry message on 429/5xx)
+4. **UI on `/settings`**:
+   - AI Settings card for selecting provider/model, saving a write-only API key (showing only `last4`), removing a key, and displaying `"Using default (Groq): X of 10 summaries used today"`
+   - `"Summarize"` button in commit details showing cached badge, summary text, and clear `429` limit messaging
+
+### Acceptance Checks
+Run the automated Phase 5 test suite:
+```bash
+npm run test:phase5
+```
+
+Checks verified:
+- **Caching & no double counting**: Summarizing the same commit twice returns `cached: true` on the second call without increasing `ai_usage`.
+- **Daily limit enforcement**: Without a saved key, the 11th uncached summary on the same UTC day returns `429` with `{ error: "daily_limit_reached", resetsAt }`.
+- **Bring-your-own-key bypass**: With a saved API key, summaries beyond 10 succeed and do not increment `ai_usage`.
+- **Failure refund**: A failed AI provider call refunds the consumed `ai_usage` slot.
+- **No key leakage**: Plaintext API keys never appear in responses, console logs, or `user_ai_settings` database rows.
+- **User isolation & auth**: Accessing another user's commit returns `404`; signed-out requests return `401`.
+
+
 
 
 

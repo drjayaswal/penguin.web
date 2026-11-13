@@ -9,7 +9,15 @@ import {
   RefreshCwIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import { AuthorColorStyle, CommitDetailPanel, CommitFileItem } from './commit-detail-panel'
+import { AiProviderId } from '@/lib/ai/providers'
+import { AiSettingsCard, AiSettingsState, AiUsageState } from './ai-settings-card'
+import {
+  AuthorColorStyle,
+  CommitDetailPanel,
+  CommitFileItem,
+  CommitSummaryData,
+  CommitSummaryError,
+} from './commit-detail-panel'
 
 export interface CommitItem {
   id: number
@@ -374,6 +382,7 @@ interface SelectedCommitEntry {
 export function RepoCommitsList({
   repos,
   header,
+  aiConfig,
 }: {
   repos: Array<{
     id: number
@@ -383,6 +392,13 @@ export function RepoCommitsList({
     initialCommits: CommitItem[]
   }>
   header?: ReactNode
+  aiConfig: {
+    initialSettings: AiSettingsState
+    initialUsage: AiUsageState
+    defaultProviderId: AiProviderId
+    defaultProviderLabel: string
+    defaultModel: string
+  }
 }) {
   const [openRepoId, setOpenRepoId] = useState<number | null>(null)
   const [selectedEntry, setSelectedEntry] = useState<SelectedCommitEntry | null>(null)
@@ -393,7 +409,13 @@ export function RepoCommitsList({
   const [filesError, setFilesError] = useState<string | null>(null)
   const [isDetailCached, setIsDetailCached] = useState(false)
 
+  const [usage, setUsage] = useState<AiUsageState>(aiConfig.initialUsage)
+  const [summary, setSummary] = useState<CommitSummaryData | null>(null)
+  const [isSummarizing, setIsSummarizing] = useState(false)
+  const [summaryError, setSummaryError] = useState<CommitSummaryError | null>(null)
+
   const activeCommitKeyRef = useRef<string | null>(null)
+  const activeSummaryKeyRef = useRef<string | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const openFrameRef = useRef<number | null>(null)
   const panelRef = useRef<HTMLElement>(null)
@@ -416,6 +438,10 @@ export function RepoCommitsList({
   const handleCloseCommit = useCallback(() => {
     clearPendingTimers()
     activeCommitKeyRef.current = null
+    activeSummaryKeyRef.current = null
+    setIsSummarizing(false)
+    setSummary(null)
+    setSummaryError(null)
     setIsPanelExpanded(false)
     closeTimerRef.current = setTimeout(() => {
       setShouldMountPanel(false)
@@ -452,11 +478,15 @@ export function RepoCommitsList({
 
     clearPendingTimers()
     activeCommitKeyRef.current = commitKey
+    activeSummaryKeyRef.current = null
     setSelectedEntry({ commit, repoId: repo.repoId, repoFullName: repo.fullName })
     setDetailFiles([])
     setFilesError(null)
     setIsDetailCached(false)
     setIsLoadingFiles(true)
+    setSummary(null)
+    setSummaryError(null)
+    setIsSummarizing(false)
 
     if (!shouldMountPanel) {
       setShouldMountPanel(true)
@@ -502,6 +532,86 @@ export function RepoCommitsList({
     }
   }
 
+  async function refreshUsage() {
+    try {
+      const res = await fetch('/api/me/ai-usage')
+      if (!res.ok) return
+      const data = await res.json().catch(() => null)
+      if (data && typeof data.used === 'number' && typeof data.limit === 'number') {
+        setUsage({
+          used: data.used,
+          limit: data.limit,
+          resetsAt: data.resetsAt || '',
+        })
+      }
+    } catch {
+    }
+  }
+
+  async function handleSummarize() {
+    if (!selectedEntry) return
+    const targetKey = `${selectedEntry.repoId}:${selectedEntry.commit.sha}`
+    activeSummaryKeyRef.current = targetKey
+    setIsSummarizing(true)
+    setSummaryError(null)
+
+    try {
+      const res = await fetch(
+        `/api/repos/${selectedEntry.repoId}/commits/${encodeURIComponent(selectedEntry.commit.sha)}/summary`,
+        { method: 'POST' },
+      )
+      const data = await res.json().catch(() => null)
+
+      if (activeCommitKeyRef.current !== targetKey || activeSummaryKeyRef.current !== targetKey) {
+        return
+      }
+
+      if (res.status === 429) {
+        const resetsAt = typeof data?.resetsAt === 'string' ? data.resetsAt : ''
+        const formattedReset = resetsAt ? new Date(resetsAt).toUTCString() : 'tomorrow UTC'
+        setSummaryError({
+          isRateLimit: true,
+          resetsAt,
+          message: `You have used all ${usage.limit} default summaries for today. Limit resets at ${formattedReset}. Add your own API key in AI Summaries settings to summarize without limits.`,
+        })
+        await refreshUsage()
+        return
+      }
+
+      if (!res.ok) {
+        setSummaryError({
+          message: data?.error || 'Failed to summarize commit.',
+        })
+        return
+      }
+
+      setSummary({
+        text: data.text,
+        provider: data.provider,
+        model: data.model,
+        cached: Boolean(data.cached),
+        truncated: Boolean(data.truncated),
+        usedDefaultKey: Boolean(data.usedDefaultKey),
+      })
+
+      if (!data.cached && data.usedDefaultKey) {
+        setUsage((prev) => ({ ...prev, used: prev.used + 1 }))
+        void refreshUsage()
+      }
+    } catch {
+      if (activeCommitKeyRef.current !== targetKey || activeSummaryKeyRef.current !== targetKey) {
+        return
+      }
+      setSummaryError({
+        message: 'Network error while generating AI summary.',
+      })
+    } finally {
+      if (activeSummaryKeyRef.current === targetKey) {
+        setIsSummarizing(false)
+      }
+    }
+  }
+
   return (
     <div
       className={`mx-auto w-full px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${
@@ -518,6 +628,18 @@ export function RepoCommitsList({
         }`}
       >
         <section className="min-w-0 flex flex-col gap-4">
+          <AiSettingsCard
+            initialSettings={aiConfig.initialSettings}
+            usage={usage}
+            defaultProviderId={aiConfig.defaultProviderId}
+            defaultProviderLabel={aiConfig.defaultProviderLabel}
+            defaultModel={aiConfig.defaultModel}
+            onSettingsChange={() => {
+              setSummaryError(null)
+              void refreshUsage()
+            }}
+          />
+
           {repos.length === 0 ? (
             <p className="text-sm text-neutral-600 py-4">
               No repositories connected yet.
@@ -568,6 +690,10 @@ export function RepoCommitsList({
                 isLoading={isLoadingFiles}
                 error={filesError}
                 isCached={isDetailCached}
+                summary={summary}
+                isSummarizing={isSummarizing}
+                summaryError={summaryError}
+                onSummarize={handleSummarize}
                 onClose={handleCloseCommit}
                 getAuthorColor={getAuthorColor}
               />

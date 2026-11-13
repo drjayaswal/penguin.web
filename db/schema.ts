@@ -6,6 +6,8 @@ import {
   timestamp,
   boolean,
   unique,
+  date,
+  primaryKey,
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
@@ -101,5 +103,55 @@ export const commitFiles = pgTable(
       table.commitId,
       table.filename,
     ),
+  })
+)
+
+export const userAiSettings = pgTable('user_ai_settings', {
+  userId: integer('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  provider: text('provider').notNull(),
+  model: text('model').notNull(),
+  apiKeyEncrypted: text('api_key_encrypted').notNull(),
+  apiKeyLast4: text('api_key_last4').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+})
+
+export const commitSummaries = pgTable(
+  'commit_summaries',
+  {
+    id: serial('id').primaryKey(),
+    commitId: integer('commit_id')
+      .notNull()
+      .references(() => commits.id, { onDelete: 'cascade' }),
+    provider: text('provider').notNull(),
+    model: text('model').notNull(),
+    text: text('text').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    commitProviderModelUnique: unique('commit_summaries_commit_id_provider_model_unique').on(
+      table.commitId,
+      table.provider,
+      table.model,
+    ),
+  })
+)
+
+export const aiUsage = pgTable(
+  'ai_usage',
+  {
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    day: date('day', { mode: 'string' }).notNull(),
+    count: integer('count').notNull().default(0),
+  },
+  (table) => ({
+    pk: primaryKey({ name: 'ai_usage_pkey', columns: [table.userId, table.day] }),
   })
 )

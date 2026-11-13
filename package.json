@@ -11,7 +11,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "test:phase2": "bun run scripts/test-phase2.ts",
-    "test:phase3": "bun run scripts/test-phase3.ts"
+    "test:phase3": "bun run scripts/test-phase3.ts",
+    "test:phase5": "bun run scripts/test-phase5.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.30.0",

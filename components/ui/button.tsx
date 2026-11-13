@@ -35,7 +35,7 @@ export const buttonVariants = ({
     danger:
       'bg-white border border-neutral-200 text-red-600 shadow-xs hover:bg-red-50 hover:border-red-200 active:bg-red-100',
     normal:
-      'text-black hover:text-blue-600 bg-white border border-gray-200/75 outline-0 ring-0 shadow-md',
+      '!bg-transparent backdrop-blur-xs text-white !hover:bg-white/15 transition-all duration-200 bg-white !border-0 !outline-0 !ring-0 hover:shadow-md',
     destructive:
       'text-black hover:text-red-600 bg-white border border-gray-200/75 outline-0 ring-0 shadow-md',
   }
