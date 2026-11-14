@@ -74,7 +74,7 @@ export function PlanetToggle() {
       onClick={togglePlanet}
       aria-label={`Switch to ${nextLabel} background`}
       title={`Switch to ${nextLabel}`}
-      className="group relative h-9 w-9 p-1 rounded-full bg-white/10 backdrop-blur-sm transition-all duration-300 cursor-pointer overflow-hidden shadow-sm flex items-center justify-center"
+      className="group relative h-9 w-9 cursor-pointer overflow-hidden"
     >
       <img
         key={nextPlanet}

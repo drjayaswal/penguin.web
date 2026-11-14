@@ -8,6 +8,8 @@ import {
   unique,
   date,
   primaryKey,
+  uuid,
+  index,
 } from 'drizzle-orm/pg-core'
 
 export const users = pgTable('users', {
@@ -153,5 +155,82 @@ export const aiUsage = pgTable(
   },
   (table) => ({
     pk: primaryKey({ name: 'ai_usage_pkey', columns: [table.userId, table.day] }),
+  })
+)
+
+export const workflows = pgTable(
+  'workflows',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    userUpdatedIdx: index('workflows_user_id_updated_at_idx').on(table.userId, table.updatedAt),
+  })
+)
+
+export type WorkflowNodeKind = 'start' | 'step' | 'branch' | 'merge' | 'end'
+export type WorkflowNodeStatus = 'todo' | 'in_progress' | 'done'
+
+export const workflowNodes = pgTable(
+  'workflow_nodes',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflows.id, { onDelete: 'cascade' }),
+    kind: text('kind').$type<WorkflowNodeKind>().notNull(),
+    title: text('title').notNull(),
+    subtitle: text('subtitle').notNull().default(''),
+    phaseLabel: text('phase_label'),
+    positionX: integer('position_x').notNull().default(0),
+    positionY: integer('position_y').notNull().default(0),
+    avatarSeed: text('avatar_seed').notNull(),
+    avatarPalette: text('avatar_palette').array().notNull(),
+    status: text('status').$type<WorkflowNodeStatus>().notNull().default('todo'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    workflowAvatarSeedUnique: unique('workflow_nodes_workflow_id_avatar_seed_unique').on(
+      table.workflowId,
+      table.avatarSeed,
+    ),
+  })
+)
+
+export const workflowEdges = pgTable(
+  'workflow_edges',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflows.id, { onDelete: 'cascade' }),
+    sourceNodeId: uuid('source_node_id')
+      .notNull()
+      .references(() => workflowNodes.id, { onDelete: 'cascade' }),
+    targetNodeId: uuid('target_node_id')
+      .notNull()
+      .references(() => workflowNodes.id, { onDelete: 'cascade' }),
+    label: text('label'),
+  },
+  (table) => ({
+    sourceTargetUnique: unique('workflow_edges_source_target_unique').on(
+      table.sourceNodeId,
+      table.targetNodeId,
+    ),
   })
 )

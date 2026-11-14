@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { PlanetToggle } from '@/components/planet-theme'
 
 export default async function HomePage({
   searchParams,
@@ -14,7 +15,16 @@ export default async function HomePage({
   const error = searchParams.error ?? null
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
+    <>
+      <header className="fixed top-0 left-0 right-0 p-3 sm:p-4 z-20 pointer-events-none">
+        <div className="flex items-center justify-end w-full">
+          <div className="pointer-events-auto">
+            <PlanetToggle />
+          </div>
+        </div>
+      </header>
+
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none">
       {error && (
         <div className="absolute top-24 left-0 right-0 flex justify-center px-4 pointer-events-none">
           <p className="text-sm text-red-700 bg-red-50 border border-red-700 px-3 py-1.5 rounded">
@@ -27,12 +37,13 @@ export default async function HomePage({
         <button
           type="submit"
           aria-label="Connect with GitHub"
-          className='mt-40 text-white font-medium hover:scale-105 transition-all duration-200'
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-md font-medium"
         >
           Connect
         </button>
       </form>
     </div>
+    </>
   )
 }
 

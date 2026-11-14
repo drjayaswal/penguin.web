@@ -9,7 +9,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(targetUrl)
   }
 
-  if (url.pathname.startsWith('/settings') && !req.cookies.has('penguin_session')) {
+  if (
+    (url.pathname.startsWith('/settings') || url.pathname.startsWith('/workflows')) &&
+    !req.cookies.has('penguin_session')
+  ) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
@@ -17,5 +20,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/dashboard', '/settings/:path*', '/settings'],
+  matcher: ['/dashboard/:path*', '/dashboard', '/settings/:path*', '/settings', '/workflows/:path*', '/workflows'],
 }

@@ -652,6 +652,12 @@ export function RepoCommitsList({
             <p className="text-xs text-white/75">{description}</p>
           </div>
           <div className="flex items-center gap-2.5">
+            <Link
+              href="/workflows"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 border-0 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
+            >
+              <span>Workflows</span>
+            </Link>
             {aiSettingsAction}
             {connectAction}
           </div>

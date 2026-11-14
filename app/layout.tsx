@@ -19,14 +19,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-skin antialiased select-none text-black min-h-screen relative isolate`}>
         <PlanetProvider>
-          <header className="fixed top-0 left-0 right-0 p-1 z-20 pointer-events-none">
-            <div className="flex items-center justify-end w-full">
-              <div className="pointer-events-auto">
-                <PlanetToggle />
-              </div>
-            </div>
-          </header>
-
           {children}
         </PlanetProvider>
       </body>

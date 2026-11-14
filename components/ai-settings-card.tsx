@@ -284,9 +284,7 @@ export function AiSettingsSheet({
         onClick={() => setIsOpen(true)}
         className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
       >
-        <SparklesIcon className="w-4 h-4 text-transparent fill-white shrink-0" />
-        <span className="sm:hidden text-white">AI</span>
-        <span className="hidden sm:inline text-white">AI Configurations</span>
+        <span className="text-white">Configurations</span>
         {settings.configured && (
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
         )}
@@ -295,20 +293,18 @@ export function AiSettingsSheet({
       {mounted && (
         <div
           onClick={() => setIsOpen(false)}
-          className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/50 backdrop-blur-md transition-opacity duration-300 ${
-            animating ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/50 backdrop-blur-md transition-opacity duration-300 ${animating ? 'opacity-100' : 'opacity-0'
+            }`}
         >
           <aside
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-settings-sheet-title"
             onClick={(e) => e.stopPropagation()}
-            className={`w-full sm:w-[420px] max-h-[85vh] sm:max-h-full sm:h-full bg-white/5 backdrop-blur-2xl rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-5 transform transition-all duration-300 ease-out overflow-y-auto ${
-              animating
+            className={`w-full sm:w-[420px] max-h-[85vh] sm:max-h-full sm:h-full bg-white/5 backdrop-blur-2xl rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-5 transform transition-all duration-300 ease-out overflow-y-auto ${animating
                 ? 'translate-y-0 sm:translate-x-0'
                 : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
-            }`}
+              }`}
           >
             <div className="flex items-start justify-between gap-3 pb-3">
               <div className="flex items-center gap-2.5">
@@ -381,7 +377,7 @@ export function AiSettingsSheet({
                   spellCheck={false}
                   data-form-type="other"
                   data-lpignore="true"
-                  className="h-9 rounded-xl bg-white/10 backdrop-blur-sm px-3 text-xs font-mono text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
+                  className="h-9 rounded-xl bg-white/10 backdrop-blur-sm px-3 text-xs  text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
                 />
               </div>
 
@@ -409,7 +405,7 @@ export function AiSettingsSheet({
                     data-1p-ignore="true"
                     aria-invalid={statusMessage?.type === 'error' ? 'true' : undefined}
                     aria-describedby="ai-sheet-key-help"
-                    className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-sm pl-3 pr-9 text-xs font-mono text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
+                    className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-sm pl-3 pr-9 text-xs  text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
                   />
                   <button
                     type="button"
@@ -441,11 +437,10 @@ export function AiSettingsSheet({
                   <p
                     role="status"
                     aria-live="polite"
-                    className={`text-xs px-3 py-2 rounded-xl border backdrop-blur-sm ${
-                      statusMessage.type === 'error'
+                    className={`text-xs px-3 py-2 rounded-xl border backdrop-blur-sm ${statusMessage.type === 'error'
                         ? 'border-red-400/40 bg-red-500/20 text-red-200'
                         : 'border-white/20 bg-white/15 text-white'
-                    }`}
+                      }`}
                   >
                     {statusMessage.text}
                   </p>

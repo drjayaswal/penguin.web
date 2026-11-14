@@ -382,6 +382,42 @@ Checks verified:
 - **No key leakage**: Plaintext API keys never appear in responses, console logs, or `user_ai_settings` database rows.
 - **User isolation & auth**: Accessing another user's commit returns `404`; signed-out requests return `401`.
 
+---
+
+## Workflow Playground
+
+A node-based workflow playground allowing signed-in users to create, edit, customize, and save pipelines on a smooth canvas powered by `@xyflow/react` and `boring-avatars`.
+
+### Routes
+- `/workflows`: List user's workflows with node counts, last updated timestamp, creation, inline rename, and delete.
+- `/workflows/:id`: Full interactive canvas with pan, zoom, fit view, node creation (+ button on edges and header), customizable node inspection side panel, autosave with debouncing, manual save, and 50-step client undo/redo.
+
+### API Endpoints (all requireUser, scoped by user_id)
+- `GET /api/workflows`: List workflows with node counts
+- `POST /api/workflows`: Create workflow with initial start trigger node
+- `GET /api/workflows/:id`: Get workflow details, nodes, and edges
+- `PATCH /api/workflows/:id`: Rename workflow
+- `DELETE /api/workflows/:id`: Delete workflow and cascade delete nodes & edges
+- `PUT /api/workflows/:id/graph`: Replace all nodes and edges atomically in one transaction with self-edge validation and 200 node limit
+- `POST /api/workflows/:id/nodes`: Create a single node
+- `PATCH /api/workflows/:id/nodes/:nodeId`: Update single node properties
+- `DELETE /api/workflows/:id/nodes/:nodeId`: Delete node with edge cascade
+
+### Acceptance Checks
+Run the acceptance checks:
+```bash
+bun run scripts/test-workflows.ts
+```
+- Creating a workflow and adding 5 nodes with branches saves and reloads identically.
+- Each new node gets a different palette in the same workflow.
+- Reloading the page keeps the same avatar for each node (stable avatar_seed).
+- A user cannot read or edit another user's workflow (404).
+- A self-edge in PUT /graph returns 400.
+- Deleting a node removes its edges.
+- Autosave fires once after a burst of edits, not per keystroke.
+- Signed-out requests return 401 for the API and redirect for the pages.
+
+
 
 
 

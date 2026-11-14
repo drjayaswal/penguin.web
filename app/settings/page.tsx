@@ -117,9 +117,7 @@ export default async function SettingsPage({
                 type="submit"
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 border-0 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
               >
-                <GitBranchIcon className="w-4 h-4" />
-                <span className="sm:hidden text-white">Connect</span>
-                <span className="hidden sm:inline text-white">Connect Repository</span>
+                <span className="text-white">Connect</span>
               </Button>
             </form>
           }
@@ -128,19 +126,15 @@ export default async function SettingsPage({
 
       <footer className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none p-3 sm:p-4">
         <div className="mx-auto w-full flex items-center justify-between gap-4">
-          <div className="flex items-center bg-white/10 hover:bg-white/15 rounded-2xl backdrop-blur-md p-2 px-3.5 gap-2.5 min-w-0 pointer-events-auto transition-colors shadow-lg">
+          <div className="flex items-center bg-white/10 hover:bg-white/15 rounded-2xl backdrop-blur-md p-1 gap-2.5 min-w-0 pointer-events-auto transition-colors shadow-lg">
             {user.user.avatarUrl && (
               <img
                 src={user.user.avatarUrl}
                 alt={user.user.name || user.user.login}
                 title={user.user.name || user.user.login}
-                className="w-7 h-7 shrink-0 rounded-full object-cover"
+                className="w-9 h-9 shrink-0 rounded-full object-cover"
               />
             )}
-            <div className="leading-tight text-white min-w-0 pr-1">
-              <p className="text-xs font-semibold truncate">{user.user.name || user.user.login}</p>
-              <p className="text-[11px] text-white/70 truncate">@{user.user.login}</p>
-            </div>
           </div>
 
           <div className="pointer-events-auto">
