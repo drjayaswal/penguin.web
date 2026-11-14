@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import {
-  CheckIcon,
   ChevronDownIcon,
   EyeIcon,
   EyeOffIcon,
@@ -10,6 +9,7 @@ import {
   RefreshCwIcon,
   SparklesIcon,
   Trash2Icon,
+  XIcon,
 } from 'lucide-react'
 import { AI_PROVIDERS, AiProviderId, SUPPORTED_AI_PROVIDER_IDS } from '@/lib/ai/providers'
 
@@ -26,7 +26,7 @@ export interface AiUsageState {
   resetsAt: string
 }
 
-interface AiSettingsCardProps {
+interface AiSettingsSheetProps {
   initialSettings: AiSettingsState
   usage: AiUsageState
   defaultProviderId: AiProviderId
@@ -67,6 +67,8 @@ function ProviderDropdown({ id, value, onChange }: ProviderDropdownProps) {
     }
   }, [open])
 
+  const otherOptions = SUPPORTED_AI_PROVIDER_IDS.filter((optionId) => optionId !== value)
+
   return (
     <div ref={rootRef} className="relative">
       <button
@@ -75,54 +77,48 @@ function ProviderDropdown({ id, value, onChange }: ProviderDropdownProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
-        className="h-8 w-full flex items-center justify-between rounded-lg bg-white/10 backdrop-blur-sm px-2.5 text-xs text-white transition-colors cursor-pointer"
+        className={`h-9 w-full flex items-center justify-between bg-white/10 backdrop-blur-sm px-3 text-xs text-white transition-all duration-300 cursor-pointer border border-white/15 ${open ? 'rounded-t-xl' : 'rounded-xl'}`}
       >
         <span className="truncate">{AI_PROVIDERS[value].label}</span>
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 text-white transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`w-3.5 h-3.5 text-white/70 transition-transform duration-200 ${open ? 'rotate-180 text-white' : ''}`}
         />
       </button>
 
-      {open && (
+      {open && otherOptions.length > 0 && (
         <ul
           role="listbox"
           aria-labelledby={id}
-          className="absolute left-0 right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl bg-white shadow-2xl py-1 min-w-[140px]"
+          className="absolute left-0 w-full top-full z-[100] overflow-y-auto max-h-24 rounded-b-xl bg-white shadow-2xl py-1"
         >
-          {SUPPORTED_AI_PROVIDER_IDS.map((optionId) => {
-            const selected = optionId === value
-            return (
-              <li key={optionId} role="option" aria-selected={selected}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange(optionId)
-                    setOpen(false)
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${
-                    selected ? 'bg-blue-600 font-semibold text-white' : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
-                  }`}
-                >
-                  <span>{AI_PROVIDERS[optionId].label}</span>
-                  {selected && <CheckIcon className="w-3.5 h-3.5 text-white" />}
-                </button>
-              </li>
-            )
-          })}
+          {otherOptions.map((optionId) => (
+            <li key={optionId} role="option" aria-selected={false}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(optionId)
+                  setOpen(false)
+                }}
+                className="w-full flex items-center px-3 py-1.5 text-xs text-left text-black hover:bg-blue-600 hover:text-white cursor-pointer transition-colors"
+              >
+                <span>{AI_PROVIDERS[optionId].label}</span>
+              </button>
+            </li>
+          ))}
         </ul>
       )}
     </div>
   )
 }
 
-export function AiSettingsCard({
+export function AiSettingsSheet({
   initialSettings,
   usage,
   defaultProviderId,
   defaultProviderLabel,
   defaultModel,
   onSettingsChange,
-}: AiSettingsCardProps) {
+}: AiSettingsSheetProps) {
   const [settings, setSettings] = useState<AiSettingsState>(initialSettings)
   const initialProvider =
     (initialSettings.provider as AiProviderId | null) ?? defaultProviderId
@@ -137,12 +133,44 @@ export function AiSettingsCard({
   const [apiKey, setApiKey] = useState<string>('')
   const [showKey, setShowKey] = useState<boolean>(false)
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [mounted, setMounted] = useState<boolean>(false)
+  const [animating, setAnimating] = useState<boolean>(false)
   const [isSaving, setIsSaving] = useState<boolean>(false)
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const [statusMessage, setStatusMessage] = useState<{
     type: 'success' | 'error'
     text: string
   } | null>(null)
+
+  useEffect(() => {
+    if (!statusMessage) return
+    const timer = setTimeout(() => {
+      setStatusMessage(null)
+    }, 4000)
+    return () => clearTimeout(timer)
+  }, [statusMessage])
+
+  useEffect(() => {
+    if (isOpen) {
+      setMounted(true)
+      const timer = setTimeout(() => setAnimating(true), 10)
+      return () => clearTimeout(timer)
+    } else {
+      setAnimating(false)
+      const timer = setTimeout(() => setMounted(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setIsOpen(false)
+    }
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown)
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
 
   function handleProviderChange(nextProvider: AiProviderId) {
     setProvider(nextProvider)
@@ -250,94 +278,98 @@ export function AiSettingsCard({
   }
 
   return (
-    <div className="backdrop-blur-md shadow-lg transition-all duration-200 relative z-30">
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={isOpen}
-        onClick={() => setIsOpen((prev) => !prev)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            setIsOpen((prev) => !prev)
-          }
-        }}
-        className={`flex items-center justify-between p-3.5 px-4 cursor-pointer select-none bg-white/10 backdrop-blur-sm ${isOpen ? "rounded-t-2xl" : "rounded-2xl"} transition-all duration-400`}
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <SparklesIcon className="w-4 h-4 text-transparent fill-white shrink-0" />
-          <h2 id="ai-settings-heading" className="text-sm font-semibold text-white shrink-0">
-            AI Summaries
-          </h2>
-          {settings.configured ? (
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-white/80 backdrop-blur-sm text-neutral-800 px-2 py-0.5 rounded-md truncate border border-white/50">
-              <KeyRoundIcon className="w-3 h-3 shrink-0" />
-              <span>
-                {getProviderLabel(settings.provider, 'Custom')} · ••••{settings.last4}
-              </span>
-            </span>
-          ) : (
-            null
-          )}
-        </div>
+        <SparklesIcon className="w-4 h-4 text-transparent fill-white shrink-0" />
+        <span className="sm:hidden text-white">AI</span>
+        <span className="hidden sm:inline text-white">AI Configurations</span>
+        {settings.configured && (
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+        )}
+      </button>
 
-        <div className="flex items-center gap-2 shrink-0">
-          {settings.configured && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                handleDelete()
-              }}
-              disabled={isDeleting}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-500 hover:text-red-600 disabled:opacity-50 transition-colors cursor-pointer px-1.5 py-0.5 rounded"
-            >
-              <Trash2Icon className="w-3 h-3" />
-              <span>{isDeleting ? 'Removing...' : 'Remove'}</span>
-            </button>
-          )}
-          <span className="text-xs font-medium text-white hidden sm:inline">
-            {settings.configured ? (isOpen ? 'Done' : 'Edit') : (isOpen ? 'Close' : 'Add')}
-          </span>
-          <ChevronDownIcon
-            className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${
-              isOpen ? 'rotate-180 text-black' : ''
-            }`}
-          />
-        </div>
-      </div>
-
-      <div
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none ${
-          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-        }`}
-      >
-        <div className="min-h-0">
-          <form
-            onSubmit={handleSave}
+      {mounted && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/50 backdrop-blur-md transition-opacity duration-300 ${
+            animating ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ai-settings-sheet-title"
             onClick={(e) => e.stopPropagation()}
-            aria-labelledby="ai-settings-heading"
-            autoComplete="off"
-            className="p-4 bg-white/10 backdrop-blur-sm rounded-b-2xl flex flex-col gap-3"
+            className={`w-full sm:w-[420px] max-h-[85vh] sm:max-h-full sm:h-full bg-white/5 backdrop-blur-2xl rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-5 transform transition-all duration-300 ease-out overflow-y-auto ${
+              animating
+                ? 'translate-y-0 sm:translate-x-0'
+                : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
+            }`}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 items-end">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="ai-provider" className="text-[11px] font-medium text-white">
+            <div className="flex items-start justify-between gap-3 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <SparklesIcon className="w-4 h-4 text-transparent fill-white" />
+                </div>
+                <div>
+                  <h2 id="ai-settings-sheet-title" className="text-sm font-semibold text-white leading-tight">
+                    AI Configurations
+                  </h2>
+                  <p className="text-xs text-white/70 mt-0.5">
+                    Customize your AI provider & models
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl p-3 bg-white/5 flex items-center justify-between gap-3 text-xs text-white/80">
+              <div className="min-w-0">
+                <p className="font-medium text-white">
+                  {settings.configured
+                    ? `${getProviderLabel(settings.provider, 'Custom')} (Active)`
+                    : `Penguin`}
+                </p>
+                <p className="text-[11px] text-white/60 truncate mt-0.5">
+                  {settings.configured
+                    ? `••••••••••••••••${settings.last4}`
+                    : `${usage.used} of ${usage.limit} daily summaries used`}
+                </p>
+              </div>
+              {settings.configured && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-1 text-[11px] font-medium text-white/60 hover:text-white disabled:opacity-50 transition-colors cursor-pointer px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 shrink-0"
+                >
+                  <Trash2Icon className="w-3.5 h-3.5" />
+                  <span>{isDeleting ? 'Removing...' : 'Remove'}</span>
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handleSave} autoComplete="off" className="flex flex-col gap-4 flex-1">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="ai-sheet-provider" className="text-xs font-medium text-white/80">
                   Provider
                 </label>
                 <ProviderDropdown
-                  id="ai-provider"
+                  id="ai-sheet-provider"
                   value={provider}
                   onChange={handleProviderChange}
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label htmlFor="ai-model" className="text-[11px] font-medium text-white">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="ai-sheet-model" className="text-xs font-medium text-white/80">
                   Model
                 </label>
                 <input
-                  id="ai-model"
+                  id="ai-sheet-model"
                   name="ai-model-field-x7"
                   type="text"
                   value={model}
@@ -349,17 +381,17 @@ export function AiSettingsCard({
                   spellCheck={false}
                   data-form-type="other"
                   data-lpignore="true"
-                  className="h-8 rounded-lg bg-white/10 backdrop-blur-sm px-2.5 text-xs font-mono text-white placeholder:text-neutral-400 focus:outline-none transition-colors"
+                  className="h-9 rounded-xl bg-white/10 backdrop-blur-sm px-3 text-xs font-mono text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label htmlFor="ai-api-key" className="text-[11px] font-medium text-neutral-600">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="ai-sheet-api-key" className="text-xs font-medium text-white/80">
                   API Key
                 </label>
                 <div className="relative flex items-center">
                   <input
-                    id="ai-api-key"
+                    id="ai-sheet-api-key"
                     name="ai-key-field-x7"
                     type={showKey ? 'text' : 'password'}
                     value={apiKey}
@@ -376,53 +408,53 @@ export function AiSettingsCard({
                     data-lpignore="true"
                     data-1p-ignore="true"
                     aria-invalid={statusMessage?.type === 'error' ? 'true' : undefined}
-                    aria-describedby="ai-key-help"
-                    className="h-8 w-full rounded-lg bg-white/10 backdrop-blur-sm pl-2.5 pr-8 text-xs font-mono text-white placeholder:text-neutral-400 focus:outline-none transition-colors"
+                    aria-describedby="ai-sheet-key-help"
+                    className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-sm pl-3 pr-9 text-xs font-mono text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/30 border border-white/15 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowKey((prev) => !prev)}
                     aria-pressed={showKey}
                     aria-label={showKey ? 'Hide API key' : 'Show API key'}
-                    className="absolute right-2 p-1 text-white/60 hover:text-white cursor-pointer"
+                    className="absolute right-2.5 p-1 text-white/60 hover:text-white cursor-pointer"
                   >
-                    {showKey ? <EyeOffIcon className="w-3.5 h-3.5" /> : <EyeIcon className="w-3.5 h-3.5" />}
+                    {showKey ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-white hover:text-blue-600 disabled:opacity-50 transition-colors cursor-pointer shrink-0 w-full sm:w-auto"
-              >
-                {isSaving ? (
-                  <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <KeyRoundIcon className="w-4 h-4" />
+              <div className="pt-2 mt-auto flex flex-col gap-3">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer shadow-md"
+                >
+                  {isSaving ? (
+                    <RefreshCwIcon className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <KeyRoundIcon className="w-4 h-4" />
+                  )}
+                  <span>{isSaving ? 'Saving...' : 'Save Configuration'}</span>
+                </button>
+
+                {statusMessage && (
+                  <p
+                    role="status"
+                    aria-live="polite"
+                    className={`text-xs px-3 py-2 rounded-xl border backdrop-blur-sm ${
+                      statusMessage.type === 'error'
+                        ? 'border-red-400/40 bg-red-500/20 text-red-200'
+                        : 'border-white/20 bg-white/15 text-white'
+                    }`}
+                  >
+                    {statusMessage.text}
+                  </p>
                 )}
-                <span>{isSaving ? 'Saving...' : 'Save AI Key'}</span>
-              </button>
-            </div>
-
-            {statusMessage && (
-              <p
-                role="status"
-                aria-live="polite"
-                className={`text-xs px-2.5 py-1.5 rounded-lg border border-white/40 backdrop-blur-sm ${
-                  statusMessage.type === 'error'
-                    ? 'bg-red-50/80 text-red-700'
-                    : 'bg-white/80 text-neutral-700'
-                }`}
-              >
-                {statusMessage.text}
-              </p>
-            )}
-          </form>
+              </div>
+            </form>
+          </aside>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   )
 }

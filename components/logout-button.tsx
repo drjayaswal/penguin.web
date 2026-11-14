@@ -1,40 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { LogOutIcon, XIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { LogOutIcon, Square } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { Button } from './ui/button'
+
+const CONFIRM_WINDOW_MS = 5000
 
 export function LogoutButton() {
   const router = useRouter()
-  const [isOpen, setIsOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [animating, setAnimating] = useState(false)
+  const [armed, setArmed] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function clearTimer() {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }
 
   useEffect(() => {
-    if (isOpen) {
-      setMounted(true)
-      const timer = setTimeout(() => setAnimating(true), 10)
-      return () => clearTimeout(timer)
-    } else {
-      setAnimating(false)
-      const timer = setTimeout(() => setMounted(false), 200)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen])
+    return () => clearTimer()
+  }, [])
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setIsOpen(false)
-    }
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown)
-    }
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
-
-  async function handleConfirmLogout() {
+  async function signOut() {
     setIsLoggingOut(true)
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
@@ -43,82 +32,73 @@ export function LogoutButton() {
       router.refresh()
     } finally {
       setIsLoggingOut(false)
-      setIsOpen(false)
+      setArmed(false)
     }
   }
 
+  function handleClick() {
+    if (isLoggingOut) return
+
+    if (armed) {
+      clearTimer()
+      setArmed(false)
+      return
+    }
+
+    setArmed(true)
+    timerRef.current = setTimeout(() => {
+      timerRef.current = null
+      setArmed(false)
+      void signOut()
+    }, CONFIRM_WINDOW_MS)
+  }
+
   return (
-    <>
-      <Button
-        type="button"
-        variant="normal"
-        onClick={() => setIsOpen(true)}
-        className="w-full flex justify-center items-center sm:w-auto hover:bg-transparent hover:shadow-none"
-      >
-        <LogOutIcon className="w-6 h-6" />
-      </Button>
+    <button
+      type="button"
+      aria-label={armed ? 'Cancel sign out' : 'Sign out'}
+      onClick={handleClick}
+      disabled={isLoggingOut}
+      className={`relative flex items-center justify-center w-9 h-9 rounded-xl backdrop-blur-md transition-all duration-200 cursor-pointer shadow-lg${
+        armed
+          ? 'bg-red-600 text-white'
+          : 'bg-white/10 hover:bg-white/20 hover:text-white text-white/80'
+      }`}
+    >
+      {armed ? <Square className="w-5 h-5 fill-white" /> : <LogOutIcon className="w-5 h-5" />}
 
-      {mounted && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-xs transition-opacity duration-200 ${
-            animating ? 'opacity-100' : 'opacity-0'
-          }`}
+      {armed && (
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 w-full h-full overflow-visible"
+          viewBox="0 0 40 40"
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={`w-full max-w-sm bg-white/85 backdrop-blur-md rounded-2xl border border-white/40 shadow-2xl p-6 flex flex-col gap-4 transform transition-all duration-200 ease-out ${
-              animating ? 'scale-100 translate-y-0 opacity-100' : 'scale-95 translate-y-2 opacity-0'
-            }`}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border bg-red-50/80 text-red-600 border-red-200">
-                  <LogOutIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-neutral-900 leading-tight">
-                    Sign out
-                  </h3>
-                  <p className="text-xs text-neutral-500 mt-0.5">
-                    Leave your current session
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="text-neutral-400 hover:text-neutral-700 p-1 rounded-lg hover:bg-white/50 transition-colors cursor-pointer"
-              >
-                <XIcon className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="border border-dashed border-black/20 rounded-xl p-3 bg-white/50 backdrop-blur-xs text-xs text-neutral-600 leading-relaxed">
-              Are you sure you want to sign out? You will need to authenticate with GitHub again to access your connected repositories.
-            </div>
-
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="flex-1 py-2 px-4 rounded-xl text-xs font-medium border border-white/40 bg-white/70 backdrop-blur-xs text-neutral-700 hover:bg-white/90 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <Button
-                type="button"
-                variant='normal'
-                onClick={handleConfirmLogout}
-                disabled={isLoggingOut}
-              >
-                <LogOutIcon className="w-3.5 h-3.5" />
-                {isLoggingOut ? 'Leaving...' : 'Sign out'}
-              </Button>
-            </div>
-          </div>
-        </div>
+          <rect
+            x="1"
+            y="1"
+            width="38"
+            height="38"
+            rx="11"
+            ry="11"
+            pathLength={100}
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeDasharray="100"
+            strokeDashoffset="0"
+            style={{
+              animation: `logout-deplete ${CONFIRM_WINDOW_MS}ms linear forwards`,
+            }}
+          />
+        </svg>
       )}
-    </>
+
+      <style>{`
+        @keyframes logout-deplete {
+          from { stroke-dashoffset: 0; }
+          to { stroke-dashoffset: 100; }
+        }
+      `}</style>
+    </button>
   )
 }

@@ -72,6 +72,26 @@ function formatDateUtc(dateVal: string | Date) {
   return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`
 }
 
+function getFileStatusInfo(status: string): { label: string; badgeClass: string } {
+  const normalized = (status || '').toLowerCase()
+  if (normalized === 'a' || normalized === 'added') {
+    return { label: 'added', badgeClass: 'bg-green-600/15 text-green-400' }
+  }
+  if (normalized === 'd' || normalized === 'removed' || normalized === 'deleted') {
+    return { label: 'removed', badgeClass: 'bg-red-600/15 text-red-400' }
+  }
+  if (normalized === 'm' || normalized === 'modified') {
+    return { label: 'modified', badgeClass: 'bg-blue-600/15 text-blue-400' }
+  }
+  if (normalized === 'r' || normalized === 'renamed') {
+    return { label: 'renamed', badgeClass: 'bg-amber-500/15 text-amber-300' }
+  }
+  if (normalized === 'c' || normalized === 'copied') {
+    return { label: 'copied', badgeClass: 'bg-purple-500/15 text-purple-300' }
+  }
+  return { label: 'changed', badgeClass: 'bg-white/10 text-white/90' }
+}
+
 function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
   const elements: ReactNode[] = []
   const tokenRegex = /(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g
@@ -95,7 +115,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
       elements.push(
         <code
           key={`${keyPrefix}-code-${match.index}`}
-          className="font-mono text-[11px] bg-white/20 text-white border border-white/20 px-1.5 py-0.5 rounded"
+          className=" text-[11px] bg-white/20 text-white border border-white/20 px-1.5 py-0.5 rounded"
         >
           {inner}
         </code>,
@@ -174,7 +194,7 @@ function MarkdownViewer({ content }: { content: string }) {
         <ol key={`ol-${key}`} className="my-1.5 space-y-1 pl-0.5">
           {current.items.map((item, idx) => (
             <li key={idx} className="flex items-start gap-1.5 text-xs text-white/90 leading-relaxed">
-              <span className="font-mono text-[10px] text-white/60 shrink-0 mt-0.5 font-medium">
+              <span className=" text-[10px] text-white/60 shrink-0 mt-0.5 font-medium">
                 {item.num || `${idx + 1}`}.
               </span>
               <div className="flex-1 min-w-0">{renderInlineMarkdown(item.text, `ol-${key}-${idx}`)}</div>
@@ -192,7 +212,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('```')) {
       if (inCodeBlock) {
         blocks.push(
-          <div key={`codeblock-${i}`} className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
+          <div key={`codeblock-${i}`} className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5  text-[11px] overflow-x-auto leading-relaxed">
             <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
           </div>,
         )
@@ -334,7 +354,7 @@ function MarkdownViewer({ content }: { content: string }) {
 
   if (inCodeBlock && codeBuffer.length > 0) {
     blocks.push(
-      <div key="trailing-code" className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5 font-mono text-[11px] overflow-x-auto leading-relaxed">
+      <div key="trailing-code" className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5  text-[11px] overflow-x-auto leading-relaxed">
         <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
       </div>,
     )
@@ -391,7 +411,7 @@ export function CommitDetailPanel({
       <div className="p-3.5 px-4 bg-white/10 backdrop-blur-sm border-b border-white/20 shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[11px] bg-white/20 text-white font-medium px-1.5 py-0.5 rounded shrink-0">
+            <span className=" text-[11px] bg-white/20 text-white font-medium px-1.5 py-0.5 rounded shrink-0">
               {commit.sha.slice(0, 7)}
             </span>
             <span className="text-xs font-medium text-white/70 truncate">
@@ -461,9 +481,9 @@ export function CommitDetailPanel({
             </span>
           </div>
           {!isLoading && !error && (
-            <div className="flex items-center gap-2 font-mono text-xs font-medium shrink-0">
-              <span className="bg-green-600 text-white px-2 py-0.5 rounded-md">+{totalAdditions}</span>
-              <span className="bg-red-600 text-white px-2 py-0.5 rounded-md">-{totalDeletions}</span>
+            <div className="flex flex-col items-center gap-2  text-xs font-medium shrink-0">
+              <span className="text-white">+{totalAdditions}</span>
+              <span className="text-white">-{totalDeletions}</span>
             </div>
           )}
         </div>
@@ -492,7 +512,7 @@ export function CommitDetailPanel({
                   <span>AI Summary</span>
                 </div>
                 <div className="flex items-center flex-wrap gap-1.5 shrink-0">
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20 text-white">
+                  <span className="text-[10px]  px-1.5 py-0.5 rounded bg-white/20 text-white">
                     {summary.provider} · {summary.model === 'llama-3.3-70b-versatile' || summary.model.toLowerCase() === 'penguin' ? 'Penguin' : summary.model}
                   </span>
                   {summary.cached && (
@@ -530,17 +550,12 @@ export function CommitDetailPanel({
             <ul className="flex flex-col gap-2.5">
               {files.map((file) => {
                 const isExpanded = expandedFiles.has(file.filename)
+                const statusInfo = getFileStatusInfo(file.status)
+                const isRenamed = statusInfo.label === 'renamed'
                 const displayFilename =
-                  file.status === 'renamed' && file.previousFilename
+                  isRenamed && file.previousFilename
                     ? `${file.previousFilename} → ${file.filename}`
                     : file.filename
-
-                let statusBadgeClass = 'bg-white/10 text-white'
-                if (file.status === 'added') {
-                  statusBadgeClass = 'bg-green-600/10 text-green-600'
-                } else if (file.status === 'removed') {
-                  statusBadgeClass = 'bg-red-600/10 text-red-600'
-                }
 
                 return (
                   <li
@@ -560,7 +575,7 @@ export function CommitDetailPanel({
                         />
                         <FileTextIcon className="w-3.5 h-3.5  text-white/70 shrink-0" />
                         <span
-                          className="font-mono text-xs text-white font-medium truncate"
+                          className=" text-xs text-white font-medium truncate"
                           title={displayFilename}
                         >
                           {displayFilename}
@@ -568,13 +583,13 @@ export function CommitDetailPanel({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${statusBadgeClass}`}
+                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded capitalize ${statusInfo.badgeClass}`}
                         >
-                          {file.status}
+                          {statusInfo.label}
                         </span>
-                        <div className="flex items-center gap-1.5 font-mono text-[11px] font-medium">
-                          <span className="text-green-600">+{file.additions}</span>
-                          <span className="text-red-600">-{file.deletions}</span>
+                        <div className="flex items-center gap-1.5  text-[11px] font-medium">
+                          <span className="text-white">+{file.additions}</span>
+                          <span className="text-white">-{file.deletions}</span>
                         </div>
                       </div>
                     </button>
@@ -589,13 +604,13 @@ export function CommitDetailPanel({
                       <div className="min-h-0 overflow-hidden">
                         <div className="bg-white/10 backdrop-blur-sm p-2.5">
                           {file.patch === null || file.patch === undefined ? (
-                            <p className="text-xs text-white/60 font-mono py-2 px-1">
+                            <p className="text-xs text-white/60  py-2 px-1">
                               Binary file or patch not available.
                             </p>
                           ) : (
                             <pre
                               tabIndex={isExpanded ? 0 : -1}
-                              className="p-2 bg-white/10 backdrop-blur-md rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed font-mono select-text text-white/90 border border-white/10"
+                              className="p-2 bg-white/10 backdrop-blur-md rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed  select-text text-white/90 border border-white/10"
                             >
                               {file.patch.split('\n').map((line, idx) => {
                                 let lineClass = 'text-white'

@@ -110,53 +110,40 @@ export default async function SettingsPage({
             defaultProviderLabel,
             defaultModel: env.DEFAULT_AI_MODEL,
           }}
-          header={
-            <>
-              {error && (
-                <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
-                  {errorMessage(error)}
-                </div>
-              )}
-
-              <div className="flex items-center justify-between pb-4 border-b border-dashed border-white/50">
-                <div>
-                  <h1 className="text-3xl font-semibold text-white tracking-tight">Repositories</h1>
-                  <p className="text-xs text-white/75">Connected repositories and GitHub access</p>
-                </div>
-                <form action="/api/github/install" method="GET">
-                  <Button
-                    type="submit"
-                    variant="normal"
-                    className="flex gap-2 items-center px-4 py-2"
-                  >
-                    <GitBranchIcon className="w-4 h-4" />
-                    <span className="hidden min-[1000px]:block text-white">Connect</span>
-                    <span className="min-[1000px]:hidden text-white">Repository</span>
-                  </Button>
-                </form>
-              </div>
-            </>
+          error={error ? errorMessage(error) : null}
+          connectAction={
+            <form action="/api/github/install" method="GET">
+              <Button
+                type="submit"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 border-0 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
+              >
+                <GitBranchIcon className="w-4 h-4" />
+                <span className="sm:hidden text-white">Connect</span>
+                <span className="hidden sm:inline text-white">Connect Repository</span>
+              </Button>
+            </form>
           }
         />
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none">
+      <footer className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none p-3 sm:p-4">
         <div className="mx-auto w-full flex items-center justify-between gap-4">
-          <div className="flex items-center bg-white/15 rounded-tr-[20px] backdrop-blur-md border-t border-r border-white/20 p-4 gap-3 min-w-0 pointer-events-auto max-[449px]:flex-1 max-[449px]:justify-start">
+          <div className="flex items-center bg-white/10 hover:bg-white/15 rounded-2xl backdrop-blur-md p-2 px-3.5 gap-2.5 min-w-0 pointer-events-auto transition-colors shadow-lg">
             {user.user.avatarUrl && (
               <img
                 src={user.user.avatarUrl}
                 alt={user.user.name || user.user.login}
                 title={user.user.name || user.user.login}
-                className="w-9 h-9 shrink-0 rounded-full border border-black/10"
+                className="w-7 h-7 shrink-0 rounded-full object-cover"
               />
             )}
-            <div className="leading-tight text-white min-w-0">
-              <p className="text-sm font-medium truncate">{user.user.name || user.user.login}</p>
-              <p className="text-xs text-white/75 truncate">@{user.user.login}</p>
+            <div className="leading-tight text-white min-w-0 pr-1">
+              <p className="text-xs font-semibold truncate">{user.user.name || user.user.login}</p>
+              <p className="text-[11px] text-white/70 truncate">@{user.user.login}</p>
             </div>
           </div>
-          <div className="pointer-events-auto max-[449px]:flex-1 max-[449px]:flex max-[449px]:justify-center">
+
+          <div className="pointer-events-auto">
             <LogoutButton />
           </div>
         </div>

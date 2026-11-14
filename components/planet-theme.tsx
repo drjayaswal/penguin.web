@@ -63,43 +63,26 @@ export function PlanetProvider({ children }: { children: ReactNode }) {
 }
 
 export function PlanetToggle() {
-  const { planet, setPlanet } = usePlanet()
-
-  const options: { id: Planet; label: string; src: string }[] = [
-    { id: 'earth', label: 'Earth', src: '/planets/earth.png' },
-    { id: 'mars', label: 'Mars', src: '/planets/mars.png' },
-  ]
+  const { planet, togglePlanet } = usePlanet()
+  const nextPlanet = planet === 'mars' ? 'earth' : 'mars'
+  const nextLabel = nextPlanet === 'earth' ? 'Earth' : 'Mars'
+  const nextSrc = nextPlanet === 'earth' ? '/planets/earth.png' : '/planets/mars.png'
 
   return (
-    <div
-      role="group"
-      aria-label="Planet background selection"
-      className="inline-flex items-center gap-2 p-1.5 rounded-full bg-white/5 backdrop-blur-sm select-none"
+    <button
+      type="button"
+      onClick={togglePlanet}
+      aria-label={`Switch to ${nextLabel} background`}
+      title={`Switch to ${nextLabel}`}
+      className="group relative h-9 w-9 p-1 rounded-full bg-white/10 backdrop-blur-sm transition-all duration-300 cursor-pointer overflow-hidden shadow-sm flex items-center justify-center"
     >
-      {options.map((opt) => {
-        const active = planet === opt.id
-        return (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => setPlanet(opt.id)}
-            aria-pressed={active}
-            aria-label={`Show ${opt.label} background`}
-            title={opt.label}
-            className={`relative h-9 w-9 shrink-0 rounded-full overflow-hidden cursor-pointer transition-all duration-200 ${active
-              ? 'scale-120 opacity-100'
-              : 'opacity-50 hover:opacity-100'
-              }`}
-          >
-            <img
-              src={opt.src}
-              alt=""
-              draggable={false}
-              className="h-full w-full object-cover pointer-events-none"
-            />
-          </button>
-        )
-      })}
-    </div>
+      <img
+        key={nextPlanet}
+        src={nextSrc}
+        alt={nextLabel}
+        draggable={false}
+        className="h-full w-full object-contain pointer-events-none transition-all duration-500 ease-out group-hover:scale-110 group-active:scale-95 animate-in fade-in zoom-in-75"
+      />
+    </button>
   )
 }

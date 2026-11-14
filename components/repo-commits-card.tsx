@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { AiProviderId } from '@/lib/ai/providers'
-import { AiSettingsCard, AiSettingsState, AiUsageState } from './ai-settings-card'
+import { AiSettingsSheet, AiSettingsState, AiUsageState } from './ai-settings-card'
 import {
   AuthorColorStyle,
   CommitDetailPanel,
@@ -131,62 +131,56 @@ function AuthorSelect({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl bg-white shadow-2xl py-1 min-w-[180px] max-w-[260px] max-h-56 overflow-y-auto"
+          className="absolute right-0 top-full z-[100] mt-1 overflow-hidden rounded-xl bg-white shadow-2xl py-1 min-w-[150px] max-w-[calc(100vw-3rem)] sm:max-w-[260px] max-h-56 overflow-y-auto"
         >
-          <li role="option" aria-selected={selectedAuthor === 'all'}>
-            <button
-              type="button"
-              onClick={() => {
-                onSelect('all')
-                setIsOpen(false)
-              }}
-              className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${selectedAuthor === 'all'
-                  ? 'bg-blue-600 font-semibold text-white'
-                  : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
-                }`}
-            >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className="truncate">All</span>
-                <span className={`text-[11px] shrink-0 ${selectedAuthor === 'all' ? 'text-white' : 'text-black'}`}>
-                  ({commitsList.length})
-                </span>
-              </div>
-              {selectedAuthor === 'all' && <CheckIcon className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
-            </button>
-          </li>
+          {selectedAuthor !== 'all' && (
+            <li role="option" aria-selected={false}>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect('all')
+                  setIsOpen(false)
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors text-black/90 hover:bg-blue-600/15 hover:text-blue-600"
+              >
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="truncate">All</span>
+                  <span className="text-[11px] shrink-0 text-neutral-500">
+                    ({commitsList.length})
+                  </span>
+                </div>
+              </button>
+            </li>
+          )}
 
-          {authors.map((author) => {
-            const count = commitsList.filter((c) => {
-              const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
-              return a === author
-            }).length
+          {authors
+            .filter((author) => author !== selectedAuthor)
+            .map((author) => {
+              const count = commitsList.filter((c) => {
+                const a = c.authorLogin ? `@${c.authorLogin}` : c.authorName || c.authorEmail || 'Unknown'
+                return a === author
+              }).length
 
-            const isSelected = selectedAuthor === author
-
-            return (
-              <li key={author} role="option" aria-selected={isSelected}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelect(author)
-                    setIsOpen(false)
-                  }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors ${isSelected
-                      ? 'bg-blue-600 font-semibold text-white'
-                      : 'text-black/90 hover:bg-blue-600/15 hover:text-blue-600'
-                    }`}
-                >
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="truncate">{author}</span>
-                    <span className={`text-[11px] shrink-0 ${isSelected ? 'text-white/80' : 'text-neutral-500'}`}>
-                      ({count})
-                    </span>
-                  </div>
-                  {isSelected && <CheckIcon className="w-3.5 h-3.5 text-white shrink-0 ml-2" />}
-                </button>
-              </li>
-            )
-          })}
+              return (
+                <li key={author} role="option" aria-selected={false}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSelect(author)
+                      setIsOpen(false)
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs text-left cursor-pointer transition-colors text-black/90 hover:bg-blue-600/15 hover:text-blue-600"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="truncate">{author}</span>
+                      <span className="text-[11px] shrink-0 text-neutral-500">
+                        ({count})
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              )
+            })}
         </ul>
       )}
     </div>
@@ -304,18 +298,17 @@ export function RepoCommitsCard({
           }`}
       >
         <div className="h-[360px] flex flex-col bg-white/10 backdrop-blur-sm p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-white/20 shrink-0">
+          <div className="flex sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-white/20 shrink-0">
             <div className="flex items-center gap-1.5 text-xs font-medium text-white/80">
               <GitBranchIcon className="w-3.5 h-3.5" />
-              <span>Latest Commits</span>
+              <span>Commits</span>
               <span className="text-[11px] text-white/60">
-                ({filteredCommits.length}{filteredCommits.length !== commitsList.length ? ` of ${commitsList.length}` : ''})
+                {filteredCommits.length}
               </span>
             </div>
 
             {authors.length > 0 && (
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-white/70 font-medium">Author:</span>
                 <AuthorSelect
                   authors={authors}
                   commitsList={commitsList}
@@ -390,7 +383,10 @@ interface SelectedCommitEntry {
 
 export function RepoCommitsList({
   repos,
-  header,
+  title = 'Repositories',
+  description = 'Connected repositories and GitHub access',
+  error,
+  connectAction,
   aiConfig,
 }: {
   repos: Array<{
@@ -400,7 +396,10 @@ export function RepoCommitsList({
     isPrivate: boolean
     initialCommits: CommitItem[]
   }>
-  header?: ReactNode
+  title?: string
+  description?: string
+  error?: string | null
+  connectAction?: ReactNode
   aiConfig: {
     initialSettings: AiSettingsState
     initialUsage: AiUsageState
@@ -621,12 +620,43 @@ export function RepoCommitsList({
     }
   }
 
+  const aiSettingsAction = (
+    <AiSettingsSheet
+      initialSettings={aiConfig.initialSettings}
+      usage={usage}
+      defaultProviderId={aiConfig.defaultProviderId}
+      defaultProviderLabel={aiConfig.defaultProviderLabel}
+      defaultModel={aiConfig.defaultModel}
+      onSettingsChange={() => {
+        setSummaryError(null)
+        void refreshUsage()
+      }}
+    />
+  )
+
   return (
     <div
-      className={`mx-auto w-full px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
+      className={`mx-auto w-full px-3 sm:px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
         }`}
     >
-      {header}
+      <div className="flex flex-col gap-4">
+        {error && (
+          <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
+            {error}
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dashed border-white/50">
+          <div>
+            <h1 className="text-3xl font-semibold text-white tracking-tight">{title}</h1>
+            <p className="text-xs text-white/75">{description}</p>
+          </div>
+          <div className="flex items-center gap-2.5">
+            {aiSettingsAction}
+            {connectAction}
+          </div>
+        </div>
+      </div>
 
       <div
         className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
@@ -635,18 +665,6 @@ export function RepoCommitsList({
           }`}
       >
         <section className="min-w-0 flex flex-col gap-4">
-          <AiSettingsCard
-            initialSettings={aiConfig.initialSettings}
-            usage={usage}
-            defaultProviderId={aiConfig.defaultProviderId}
-            defaultProviderLabel={aiConfig.defaultProviderLabel}
-            defaultModel={aiConfig.defaultModel}
-            onSettingsChange={() => {
-              setSummaryError(null)
-              void refreshUsage()
-            }}
-          />
-
           {repos.length === 0 ? (
             <p className="text-sm text-white/70 py-4">
               No repositories connected yet.
