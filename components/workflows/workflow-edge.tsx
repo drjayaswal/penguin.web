@@ -43,7 +43,7 @@ export const WorkflowCustomEdge = memo(function WorkflowCustomEdge({
         markerEnd={markerEnd}
         style={{
           ...style,
-          stroke: selected ? '#60A5FA' : 'rgba(255, 255, 255, 0.35)',
+          stroke: selected ? '#2563EB' : '#A3A3A3',
           strokeWidth: selected ? 2.5 : 1.75,
         }}
       />
@@ -58,7 +58,7 @@ export const WorkflowCustomEdge = memo(function WorkflowCustomEdge({
           className="nodrag nopan flex items-center gap-1 group/edge"
         >
           {data?.label && (
-            <span className="px-2 py-0.5 rounded-full bg-neutral-900/90 backdrop-blur-md border border-white/20 text-[10px] text-white/80  shadow-sm">
+            <span className="px-2 py-0.5 bg-white text-[10px] text-neutral-800 shadow-sm border-0">
               {data.label}
             </span>
           )}
@@ -72,7 +72,7 @@ export const WorkflowCustomEdge = memo(function WorkflowCustomEdge({
               }}
               title="Add step between nodes"
               aria-label="Add step"
-              className="w-5 h-5 rounded-full bg-white/20 hover:bg-blue-600 border border-white/30 hover:border-blue-400 text-white flex items-center justify-center transition-all opacity-0 group-hover/edge:opacity-100 hover:scale-110 shadow-md cursor-pointer"
+              className="w-5 h-5 bg-white hover:bg-blue-600 text-black hover:text-white flex items-center justify-center transition-all opacity-0 group-hover/edge:opacity-100 hover:scale-110 shadow-md cursor-pointer border-0 outline-none ring-0"
             >
               <PlusIcon className="w-3 h-3" />
             </button>

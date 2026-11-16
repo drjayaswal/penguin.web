@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { PlanetProvider, PlanetToggle } from '@/components/planet-theme'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -17,10 +16,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-skin antialiased select-none text-black min-h-screen relative isolate`}>
-        <PlanetProvider>
-          {children}
-        </PlanetProvider>
+      <body className={`${inter.variable} font-skin antialiased select-none text-black min-h-screen bg-[url('/blue.png')] bg-cover bg-center bg-fixed bg-no-repeat`}>
+        {children}
       </body>
     </html>
   )

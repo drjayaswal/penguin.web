@@ -44,6 +44,12 @@ const STATUSES: { id: WorkflowNodeStatus; label: string }[] = [
   { id: 'done', label: 'Done' },
 ]
 
+const DOT_COLOR: Record<WorkflowNodeStatus, string> = {
+  todo: 'bg-blue-600',
+  in_progress: 'bg-amber-600',
+  done: 'bg-green-600',
+}
+
 export const WorkflowCustomNode = memo(function WorkflowCustomNode({
   data,
   selected,
@@ -63,6 +69,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
   }, [data.title, data.subtitle, data.kind, data.status])
 
   const kindInfo = KIND_ACCENTS[data.kind] || KIND_ACCENTS.step
+  const dotColorClass = DOT_COLOR[data.status] || DOT_COLOR.todo
 
   const stopAll = (e: React.SyntheticEvent) => {
     e.stopPropagation()
@@ -103,21 +110,20 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
 
   return (
     <div
-      className={`group relative rounded-2xl bg-white/20 backdrop-blur-2xl p-3.5 select-none transition-[width,box-shadow] duration-300 ease-out ${
-        selected ? 'w-[320px] shadow-2xl' : 'w-[240px] sm:w-[260px] shadow-none'
-      }`}
+      className={`group relative bg-white p-3.5 select-none transition-[width,box-shadow] duration-300 ease-out border-0 outline-none ring-0 ${selected ? 'w-[320px] shadow-2xl' : 'w-[240px] sm:w-[260px] shadow-md'
+        }`}
     >
       {data.kind !== 'start' && (
         <Handle
           type="target"
           position={Position.Left}
-          className="!w-1.5 !h-1.5 !-left-0 !bg-white !border-0"
+          className="!w-1.5 !h-1.5 !-left-0 !bg-neutral-400 !border-0"
         />
       )}
 
       <div className="flex items-start justify-between gap-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+          <div className="w-8 h-8 overflow-hidden shrink-0">
             <Avatar
               size={32}
               name={data.avatarSeed || 'node'}
@@ -127,23 +133,23 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
           </div>
 
           <div className="min-w-0">
-            <span className="text-[10px] tracking-wider uppercase text-white/50 block truncate leading-tight font-medium">
+            <span className="text-[10px] tracking-wider uppercase text-neutral-500 block truncate leading-tight font-medium">
               {kindInfo.tag}
             </span>
-            <h3 className="text-xs font-semibold text-white truncate leading-snug">
+            <h3 className="text-xs font-semibold text-black truncate leading-snug">
               {data.title || 'Untitled'}
             </h3>
           </div>
         </div>
 
         <div
-          className={`w-2.5 h-2.5 rounded-full shrink-0 mt-1`}
+          className={`w-2.5 h-2.5 shrink-0 mt-1 ${dotColorClass}`}
           title={data.status}
         />
       </div>
 
       {!expanded && data.subtitle && (
-        <p className="mt-2 text-[11px] text-white/70 line-clamp-2 leading-relaxed">
+        <p className="mt-2 text-[11px] text-neutral-600 line-clamp-2 leading-relaxed">
           {data.subtitle}
         </p>
       )}
@@ -153,16 +159,15 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
         onDoubleClick={stopAll}
         onMouseDown={stopAll}
         onPointerDown={stopAll}
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
-          expanded
-            ? 'grid-rows-[1fr] opacity-100 mt-3.5 pt-3'
-            : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-        }`}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${expanded
+          ? 'grid-rows-[1fr] opacity-100 mt-3.5 pt-3 border-t border-neutral-100'
+          : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+          }`}
       >
         <div className="overflow-hidden nodrag nopan">
           <div className="flex flex-col gap-2.5 text-xs">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider">
+              <label className="text-[10px] font-medium text-neutral-600 uppercase tracking-wider">
                 Name
               </label>
               <input
@@ -170,13 +175,13 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
                 value={formTitle}
                 onChange={(e) => setFormTitle(e.target.value)}
                 onKeyDown={(e) => e.stopPropagation()}
-                className="h-7 px-2 rounded-lg bg-white/10 text-white placeholder:text-white/30 border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-xs shadow-none"
+                className="h-7 px-2 bg-neutral-100 text-black placeholder:text-neutral-400 border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-xs shadow-none"
                 placeholder="Step title"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider">
+              <label className="text-[10px] font-medium text-neutral-600 uppercase tracking-wider">
                 Description
               </label>
               <textarea
@@ -184,23 +189,23 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
                 value={formSubtitle}
                 onChange={(e) => setFormSubtitle(e.target.value)}
                 onKeyDown={(e) => e.stopPropagation()}
-                className="p-1.5 rounded-lg bg-white/10 text-white placeholder:text-white/30 border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-xs resize-none shadow-none"
+                className="p-1.5 bg-neutral-100 text-black placeholder:text-neutral-400 border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-xs resize-none shadow-none"
                 placeholder="Description"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider">
+                <label className="text-[10px] font-medium text-neutral-600 uppercase tracking-wider">
                   Kind
                 </label>
                 <select
                   value={formKind}
                   onChange={(e) => setFormKind(e.target.value as WorkflowNodeKind)}
-                  className="h-7 px-1.5 rounded-lg bg-white/10 text-white border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-[11px] cursor-pointer shadow-none"
+                  className="h-7 px-1.5 bg-neutral-100 text-black border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-[11px] cursor-pointer shadow-none"
                 >
                   {KINDS.map((k) => (
-                    <option key={k.id} value={k.id} className="bg-neutral-900 text-white">
+                    <option key={k.id} value={k.id} className="bg-white text-black">
                       {k.label}
                     </option>
                   ))}
@@ -208,16 +213,16 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-medium text-white/70 uppercase tracking-wider">
+                <label className="text-[10px] font-medium text-neutral-600 uppercase tracking-wider">
                   Status
                 </label>
                 <select
                   value={formStatus}
                   onChange={(e) => setFormStatus(e.target.value as WorkflowNodeStatus)}
-                  className="h-7 px-1.5 rounded-lg bg-white/10 text-white border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-[11px] cursor-pointer shadow-none"
+                  className="h-7 px-1.5 bg-neutral-100 text-black border-0 outline-none ring-0 focus:outline-none focus:ring-0 text-[11px] cursor-pointer shadow-none"
                 >
                   {STATUSES.map((s) => (
-                    <option key={s.id} value={s.id} className="bg-neutral-900 text-white">
+                    <option key={s.id} value={s.id} className="bg-white text-black">
                       {s.label}
                     </option>
                   ))}
@@ -225,11 +230,11 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-1.5 pt-2">
+            <div className="flex items-center justify-between gap-1.5 pt-2 border-0">
               <button
                 type="button"
                 onClick={handleDelete}
-                className="p-1.5 rounded-lg bg-white/10 text-white border-0 outline-none ring-0 focus:outline-none focus:ring-0 cursor-pointer"
+                className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 border-0 outline-none ring-0 focus:outline-none focus:ring-0 cursor-pointer"
                 title="Delete node"
               >
                 <Trash2Icon className="w-3.5 h-3.5" />
@@ -239,7 +244,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 text-[11px] font-medium border-0 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-[11px] font-medium border-0 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer flex items-center gap-1"
                 >
                   <XIcon className="w-3 h-3" />
                   <span>Cancel</span>
@@ -247,7 +252,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="px-2.5 py-1 rounded-lg bg-white text-black hover:bg-white/90 text-[11px] font-semibold border-0 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 bg-black text-white hover:bg-neutral-800 text-[11px] font-semibold border-0 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer flex items-center gap-1"
                 >
                   <CheckIcon className="w-3 h-3" />
                   <span>Save</span>
@@ -262,7 +267,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
         <Handle
           type="source"
           position={Position.Right}
-          className="!w-1.5 !h-1.5 !-right-0 !bg-white !border-0"
+          className="!w-1.5 !h-1.5 !-right-0 !bg-neutral-400 !border-0"
         />
       )}
     </div>

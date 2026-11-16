@@ -1,17 +1,17 @@
-import { redirect } from 'next/navigation'
-import { requireUser } from '@/lib/auth'
-import { cookies } from 'next/headers'
-import { db } from '@/db/index'
-import { workflows, workflowNodes } from '@/db/schema'
-import { desc, eq, sql } from 'drizzle-orm'
-import { WorkflowListClient } from '@/components/workflows/workflow-list-client'
+import { redirect } from "next/navigation"
+import { requireUser } from "@/lib/auth"
+import { cookies } from "next/headers"
+import { db } from "@/db/index"
+import { workflows, workflowNodes } from "@/db/schema"
+import { desc, eq, sql } from "drizzle-orm"
+import { WorkflowListClient } from "@/components/workflows/workflow-list-client"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export default async function WorkflowsPage() {
   const cookieStore = cookies()
   const user = await requireUser(cookieStore.toString())
-  if (!user) redirect('/')
+  if (!user) redirect("/")
 
   const userWorkflows = await db
     .select({

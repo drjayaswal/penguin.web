@@ -8,7 +8,7 @@ interface ButtonGroupProps {
 function ButtonGroupRoot({ children, className = '' }: ButtonGroupProps) {
   return (
     <div
-      className={`inline-flex items-stretch rounded-xl bg-white border border-neutral-200 shadow-xs overflow-hidden ${className}`}
+      className={`inline-flex items-stretch bg-white border border-neutral-200 shadow-xs overflow-hidden ${className}`}
     >
       {children}
     </div>
@@ -27,9 +27,9 @@ interface ButtonGroupItemProps extends React.ButtonHTMLAttributes<HTMLButtonElem
 }
 
 const badgeColors = {
-  blue:    'bg-blue-600  text-white',
-  orange:  'bg-orange-500 text-white',
-  green:   'bg-emerald-600 text-white',
+  blue: 'bg-blue-600  text-white',
+  orange: 'bg-orange-500 text-white',
+  green: 'bg-emerald-600 text-white',
   neutral: 'bg-neutral-200 text-neutral-700',
 }
 
@@ -62,7 +62,7 @@ function ButtonGroupItem({
       {children && <span>{children}</span>}
       {badge !== undefined && (
         <span
-          className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold leading-none ${badgeColors[badgeColor]}`}
+          className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[11px] font-semibold leading-none ${badgeColors[badgeColor]}`}
         >
           {badge}
         </span>

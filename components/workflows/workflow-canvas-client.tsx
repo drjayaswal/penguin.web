@@ -419,80 +419,113 @@ function WorkflowCanvasInner({ workflow, initialNodes, initialEdges }: WorkflowC
   }, [edges, handleAddNodeBetween])
 
   return (
-    <div className="relative w-full h-screen flex flex-col select-none overflow-hidden bg-white/10 backdrop-blur-2xl">
-      <header className="z-20 flex items-center justify-between gap-3 px-4 py-3 bg-white/5 backdrop-blur-xl">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/workflows"
-            className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer shrink-0"
-            title="Back to workflows"
-          >
-            <ArrowLeftIcon className="w-4 h-4" />
-          </Link>
+    <div className="relative w-full h-screen flex flex-col select-none overflow-hidden bg-[#FBFBFB]">
+      <header className="z-20 flex flex-col bg-white border-b shadow-xs">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              href="/workflows"
+              className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-black transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0"
+              title="Back to workflows"
+            >
+              <ArrowLeftIcon className="w-4 h-4 text-black" />
+            </Link>
 
-          <div className="min-w-0">
-            <h1 className="text-sm font-semibold text-white truncate">{workflow.name}</h1>
-            <div className="flex items-center gap-2 text-[11px] text-white">
-              <span>{saveStatus}</span>
-              {saveStatus === 'Saving...' && <RefreshCwIcon className="w-3 h-3 animate-spin text-white" />}
-              {saveStatus === 'Saved' && <CheckIcon className="w-3 h-3 text-white" />}
+            <div className="min-w-0">
+              <h1 className="text-sm font-semibold text-black truncate">{workflow.name}</h1>
+              <div className="flex items-center gap-2 text-[11px] text-neutral-600">
+                <span>{saveStatus}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleUndo}
+              disabled={historyIdxRef.current <= 0}
+              title="Undo (Ctrl/Cmd+Z)"
+              className="p-2 bg-neutral-100 hover:bg-neutral-200 text-black disabled:opacity-30 transition-colors cursor-pointer border-0 outline-none ring-0"
+            >
+              <UndoIcon className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleRedo}
+              disabled={historyIdxRef.current >= historyRef.current.length - 1}
+              title="Redo (Ctrl/Cmd+Y)"
+              className="p-2 bg-neutral-100 hover:bg-neutral-200 text-black disabled:opacity-30 transition-colors cursor-pointer border-0 outline-none ring-0"
+            >
+              <RedoIcon className="w-3.5 h-3.5" />
+            </button>
+
+            <div className="hidden sm:block h-4 w-px bg-neutral-200 mx-1" />
+
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleAddNode('step')}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black/5 text-black hover:bg-black/10 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
+              >
+                <PlusIcon className="w-3.5 h-3.5" />
+                <span>Add</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={saveGraph}
+                disabled={isSaving}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-green-600 text-white hover:bg-green-700 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
+              >
+                <CheckIcon className="w-3.5 h-3.5" />
+                <span>Save</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleRunStub}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
+              >
+                <PlayIcon className="fill-white w-3.5 h-3.5" />
+                <span>Run</span>
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={handleUndo}
-            disabled={historyIdxRef.current <= 0}
-            title="Undo (Ctrl/Cmd+Z)"
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-colors cursor-pointer"
-          >
-            <UndoIcon className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={handleRedo}
-            disabled={historyIdxRef.current >= historyRef.current.length - 1}
-            title="Redo (Ctrl/Cmd+Y)"
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white disabled:opacity-30 transition-colors cursor-pointer"
-          >
-            <RedoIcon className="w-3.5 h-3.5" />
-          </button>
-
-          <div className="h-4 w-px bg-white/20 mx-1" />
-
+        <div className="sm:hidden flex items-center justify-end gap-2 px-4 pb-2.5 pt-0.5">
           <button
             type="button"
             onClick={() => handleAddNode('step')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-medium transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
           >
             <PlusIcon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Add Step</span>
+            <span>Add</span>
           </button>
 
           <button
             type="button"
             onClick={saveGraph}
             disabled={isSaving}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-medium transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-green-600 text-white hover:bg-green-700 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
           >
             <CheckIcon className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Save</span>
+            <span>Save</span>
           </button>
 
           <button
             type="button"
             onClick={handleRunStub}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-medium transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium transition-all cursor-pointer border-0 outline-none ring-0"
           >
+            <PlayIcon className="fill-white w-3.5 h-3.5" />
             <span>Run</span>
           </button>
         </div>
       </header>
 
       {runBanner && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 rounded-xl bg-white backdrop-blur-xl text-black text-xs font-medium shadow-lg animate-in fade-in slide-in-from-top-2">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-black text-white text-xs font-medium shadow-lg animate-in fade-in slide-in-from-top-2 border-0 outline-none ring-0">
           {runBanner}
         </div>
       )}
@@ -529,20 +562,24 @@ function WorkflowCanvasInner({ workflow, initialNodes, initialEdges }: WorkflowC
           onMoveEnd={(e, viewport) => setCurrentZoom(Math.round(viewport.zoom * 100))}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
+          panOnDrag={true}
+          panOnScroll={false}
+          zoomOnPinch={true}
+          preventScrolling={false}
           fitView
           minZoom={0.2}
           maxZoom={2}
           proOptions={{ hideAttribution: true }}
-          className="bg-transparent"
+          className="bg-transparent touch-none"
         >
-          <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e2d9cc" />
+          <div className="react-flow-fixed-dots pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(#b0a89a50_1px,transparent_2px)] [background-size:24px_24px]" />
         </ReactFlow>
       </div>
 
-      <footer className="z-20 flex items-center justify-between gap-3 px-4 py-2 bg-white/5 backdrop-blur-xl text-xs text-white/80 ">
+      <footer className="z-20 flex items-center justify-between gap-3 px-4 py-2 bg-white border-t text-xs text-neutral-700 shadow-xs border-0">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <LayersIcon className="w-3.5 h-3.5 text-white/60" />
+            <LayersIcon className="w-3.5 h-3.5 text-neutral-500" />
             <span>{nodes.length} nodes</span>
           </span>
         </div>
@@ -551,12 +588,12 @@ function WorkflowCanvasInner({ workflow, initialNodes, initialEdges }: WorkflowC
           <button
             type="button"
             onClick={() => fitView({ duration: 300 })}
-            className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className="p-1 bg-neutral-100 hover:bg-neutral-200 text-black transition-colors cursor-pointer border-0 outline-none ring-0"
             title="Fit view"
           >
             <Maximize2Icon className="w-3.5 h-3.5" />
           </button>
-          <span className="text-[11px] text-white/60">{currentZoom}%</span>
+          <span className="text-[11px] text-neutral-600">{currentZoom}%</span>
         </div>
       </footer>
     </div>

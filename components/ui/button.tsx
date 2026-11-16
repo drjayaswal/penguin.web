@@ -22,9 +22,9 @@ export const buttonVariants = ({
     'inline-flex items-center justify-center gap-2 font-medium leading-none select-none cursor-pointer transition-all duration-100 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30'
 
   const sizes: Record<ButtonSize, string> = {
-    sm:  'h-8  px-3 text-xs rounded-2xl',
-    md:  'h-9  px-4 text-sm rounded-2xl',
-    lg:  'h-10 px-5 text-sm rounded-2xl',
+    sm: 'h-8  px-3 text-xs rounded-2xl',
+    md: 'h-9  px-4 text-sm rounded-2xl',
+    lg: 'h-10 px-5 text-sm rounded-2xl',
   }
 
   const variants: Record<ButtonVariant, string> = {
@@ -51,9 +51,9 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const badgeColors = {
-  blue:    'bg-blue-600  text-white',
-  orange:  'bg-orange-500 text-white',
-  green:   'bg-emerald-600 text-white',
+  blue: 'bg-blue-600  text-white',
+  orange: 'bg-orange-500 text-white',
+  green: 'bg-emerald-600 text-white',
   neutral: 'bg-neutral-200 text-neutral-700',
 }
 
@@ -65,7 +65,7 @@ export function ButtonBadge({
   color?: 'blue' | 'orange' | 'green' | 'neutral'
 }) {
   return (
-    <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold leading-none ${badgeColors[color]}`}>
+    <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[11px] font-semibold leading-none ${badgeColors[color]}`}>
       {children}
     </span>
   )

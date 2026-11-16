@@ -75,21 +75,21 @@ function formatDateUtc(dateVal: string | Date) {
 function getFileStatusInfo(status: string): { label: string; badgeClass: string } {
   const normalized = (status || '').toLowerCase()
   if (normalized === 'a' || normalized === 'added') {
-    return { label: 'added', badgeClass: 'bg-green-600/15 text-green-400' }
+    return { label: 'added', badgeClass: 'bg-green-100 text-green-700' }
   }
   if (normalized === 'd' || normalized === 'removed' || normalized === 'deleted') {
-    return { label: 'removed', badgeClass: 'bg-red-600/15 text-red-400' }
+    return { label: 'removed', badgeClass: 'bg-red-100 text-red-700' }
   }
   if (normalized === 'm' || normalized === 'modified') {
-    return { label: 'modified', badgeClass: 'bg-blue-600/15 text-blue-400' }
+    return { label: 'modified', badgeClass: 'bg-blue-100 text-blue-700' }
   }
   if (normalized === 'r' || normalized === 'renamed') {
-    return { label: 'renamed', badgeClass: 'bg-amber-500/15 text-amber-300' }
+    return { label: 'renamed', badgeClass: 'bg-amber-100 text-amber-700' }
   }
   if (normalized === 'c' || normalized === 'copied') {
-    return { label: 'copied', badgeClass: 'bg-purple-500/15 text-purple-300' }
+    return { label: 'copied', badgeClass: 'bg-purple-100 text-purple-700' }
   }
-  return { label: 'changed', badgeClass: 'bg-white/10 text-white/90' }
+  return { label: 'changed', badgeClass: 'bg-neutral-100 text-neutral-800' }
 }
 
 function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
@@ -106,7 +106,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
     if (token.startsWith('**') && token.endsWith('**')) {
       const inner = token.slice(2, -2)
       elements.push(
-        <strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold text-white">
+        <strong key={`${keyPrefix}-bold-${match.index}`} className="font-semibold text-black">
           {inner}
         </strong>,
       )
@@ -115,7 +115,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
       elements.push(
         <code
           key={`${keyPrefix}-code-${match.index}`}
-          className=" text-[11px] bg-white/20 text-white border border-white/20 px-1.5 py-0.5 rounded"
+          className="text-[11px] bg-neutral-100 text-black px-1.5 py-0.5 border-0 outline-none ring-0"
         >
           {inner}
         </code>,
@@ -123,7 +123,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
     } else if (token.startsWith('*') && token.endsWith('*')) {
       const inner = token.slice(1, -1)
       elements.push(
-        <em key={`${keyPrefix}-italic-${match.index}`} className="italic text-white/80">
+        <em key={`${keyPrefix}-italic-${match.index}`} className="italic text-neutral-800">
           {inner}
         </em>,
       )
@@ -136,7 +136,7 @@ function renderInlineMarkdown(text: string, keyPrefix: string): ReactNode[] {
             href={linkMatch[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:underline"
+            className="text-blue-600 hover:underline"
           >
             {linkMatch[1]}
           </a>,
@@ -182,8 +182,8 @@ function MarkdownViewer({ content }: { content: string }) {
       blocks.push(
         <ul key={`ul-${key}`} className="my-1.5 space-y-1 pl-0.5">
           {current.items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-xs text-white/90 leading-relaxed">
-              <span className="w-1.5 h-1.5 rounded-full bg-white/60 mt-1.5 shrink-0" />
+            <li key={idx} className="flex items-start gap-2 text-xs text-neutral-800 leading-relaxed">
+              <span className="w-1.5 h-1.5 bg-neutral-400 mt-1.5 shrink-0" />
               <div className="flex-1 min-w-0">{renderInlineMarkdown(item.text, `ul-${key}-${idx}`)}</div>
             </li>
           ))}
@@ -193,8 +193,8 @@ function MarkdownViewer({ content }: { content: string }) {
       blocks.push(
         <ol key={`ol-${key}`} className="my-1.5 space-y-1 pl-0.5">
           {current.items.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-1.5 text-xs text-white/90 leading-relaxed">
-              <span className=" text-[10px] text-white/60 shrink-0 mt-0.5 font-medium">
+            <li key={idx} className="flex items-start gap-1.5 text-xs text-neutral-800 leading-relaxed">
+              <span className="text-[10px] text-neutral-500 shrink-0 mt-0.5 font-medium">
                 {item.num || `${idx + 1}`}.
               </span>
               <div className="flex-1 min-w-0">{renderInlineMarkdown(item.text, `ol-${key}-${idx}`)}</div>
@@ -212,7 +212,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('```')) {
       if (inCodeBlock) {
         blocks.push(
-          <div key={`codeblock-${i}`} className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5  text-[11px] overflow-x-auto leading-relaxed">
+          <div key={`codeblock-${i}`} className="my-2 bg-neutral-100 text-neutral-900 p-2.5 text-[11px] overflow-x-auto leading-relaxed border-0 outline-none ring-0">
             <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
           </div>,
         )
@@ -247,25 +247,25 @@ function MarkdownViewer({ content }: { content: string }) {
       }
 
       blocks.push(
-        <div key={`table-${i}`} className="my-2.5 overflow-x-auto rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm">
+        <div key={`table-${i}`} className="my-2.5 overflow-x-auto bg-neutral-50 border-0 outline-none ring-0">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="border-b border-white/20 bg-white/15">
+              <tr className="bg-neutral-100">
                 {headers.map((h, colIdx) => (
                   <th
                     key={colIdx}
-                    className="px-3 py-2 font-semibold text-white text-[11px]"
+                    className="px-3 py-2 font-semibold text-black text-[11px]"
                   >
                     {renderInlineMarkdown(h, `th-${i}-${colIdx}`)}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-neutral-200">
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="hover:bg-white/10 transition-colors">
+                <tr key={rIdx} className="hover:bg-neutral-100 transition-colors">
                   {headers.map((_, colIdx) => (
-                    <td key={colIdx} className="px-3 py-2 text-white/90 text-xs">
+                    <td key={colIdx} className="px-3 py-2 text-neutral-900 text-xs">
                       {renderInlineMarkdown(row[colIdx] || '', `td-${i}-${rIdx}-${colIdx}`)}
                     </td>
                   ))}
@@ -281,7 +281,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('### ')) {
       flushList(i)
       blocks.push(
-        <h4 key={`h3-${i}`} className="text-xs font-semibold text-white/80 mt-2 mb-1 flex items-center gap-1.5">
+        <h4 key={`h3-${i}`} className="text-xs font-semibold text-neutral-800 mt-2 mb-1 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(4), `h3-${i}`)}</span>
         </h4>,
       )
@@ -291,7 +291,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('## ')) {
       flushList(i)
       blocks.push(
-        <h3 key={`h2-${i}`} className="text-xs font-semibold text-white mt-2.5 mb-1 pb-1 border-b border-white/20 flex items-center gap-1.5">
+        <h3 key={`h2-${i}`} className="text-xs font-semibold text-black mt-2.5 mb-1 pb-1 border-b border-neutral-200 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(3), `h2-${i}`)}</span>
         </h3>,
       )
@@ -301,7 +301,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('# ')) {
       flushList(i)
       blocks.push(
-        <h2 key={`h1-${i}`} className="text-sm font-semibold text-white mt-3 mb-1.5 pb-1 border-b border-white/20 flex items-center gap-1.5">
+        <h2 key={`h1-${i}`} className="text-sm font-semibold text-black mt-3 mb-1.5 pb-1 border-b border-neutral-200 flex items-center gap-1.5">
           <span className="min-w-0">{renderInlineMarkdown(trimmed.slice(2), `h1-${i}`)}</span>
         </h2>,
       )
@@ -335,7 +335,7 @@ function MarkdownViewer({ content }: { content: string }) {
     if (trimmed.startsWith('> ')) {
       flushList(i)
       blocks.push(
-        <blockquote key={`quote-${i}`} className="my-1.5 pl-2.5 border-l-2 border-white/40 text-xs italic text-white/70">
+        <blockquote key={`quote-${i}`} className="my-1.5 pl-2.5 border-l-2 border-neutral-300 text-xs italic text-neutral-600">
           {renderInlineMarkdown(trimmed.slice(2), `quote-${i}`)}
         </blockquote>,
       )
@@ -344,7 +344,7 @@ function MarkdownViewer({ content }: { content: string }) {
 
     flushList(i)
     blocks.push(
-      <p key={`p-${i}`} className="text-xs text-white/90 leading-relaxed my-1">
+      <p key={`p-${i}`} className="text-xs text-neutral-800 leading-relaxed my-1">
         {renderInlineMarkdown(trimmed, `p-${i}`)}
       </p>,
     )
@@ -354,7 +354,7 @@ function MarkdownViewer({ content }: { content: string }) {
 
   if (inCodeBlock && codeBuffer.length > 0) {
     blocks.push(
-      <div key="trailing-code" className="my-2 rounded-xl bg-black/40 backdrop-blur-sm border border-white/10 text-white/90 p-2.5  text-[11px] overflow-x-auto leading-relaxed">
+      <div key="trailing-code" className="my-2 bg-neutral-100 text-neutral-900 p-2.5 text-[11px] overflow-x-auto leading-relaxed border-0 outline-none ring-0">
         <pre className="whitespace-pre">{codeBuffer.join('\n')}</pre>
       </div>,
     )
@@ -407,18 +407,18 @@ export function CommitDetailPanel({
   }
 
   return (
-    <div className="flex flex-col rounded-2xl backdrop-blur-md shadow-xl overflow-hidden lg:max-h-[calc(100vh-7.5rem)]">
-      <div className="p-3.5 px-4 bg-white/10 backdrop-blur-sm border-b border-white/20 shrink-0">
+    <div className="flex flex-col bg-white shadow-xl overflow-hidden lg:max-h-[calc(100vh-7.5rem)] border-0 outline-none ring-0">
+      <div className="p-3.5 px-4 bg-white border-b border-neutral-100 shrink-0">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
-            <span className=" text-[11px] bg-white/20 text-white font-medium px-1.5 py-0.5 rounded shrink-0">
+            <span className="text-[11px] bg-blue-50 text-blue-600 font-medium px-1.5 py-0.5 shrink-0">
               {commit.sha.slice(0, 7)}
             </span>
-            <span className="text-xs font-medium text-white/70 truncate">
+            <span className="text-xs font-medium text-neutral-600 truncate">
               {repoFullName}
             </span>
             {!isLoading && isCached && (
-              <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/20 text-white shrink-0">
+              <span className="text-[10px] font-medium px-1.5 py-0.5 bg-neutral-100 text-neutral-700 shrink-0">
                 cached
               </span>
             )}
@@ -427,26 +427,26 @@ export function CommitDetailPanel({
             type="button"
             onClick={onClose}
             aria-label="Close commit details"
-            className="text-white/60 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+            className="text-neutral-500 hover:text-black p-1 hover:bg-neutral-100 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0"
           >
             <XIcon className="w-4 h-4" />
           </button>
         </div>
 
-        <h2 className="text-sm font-semibold text-white leading-snug break-words mt-2 select-text">
+        <h2 className="text-sm font-semibold text-black leading-snug break-words mt-2 select-text">
           {title}
         </h2>
 
         {body && (
-          <p className="text-xs text-white/80 whitespace-pre-wrap mt-1.5 leading-relaxed break-words select-text max-h-24 overflow-y-auto overscroll-contain">
+          <p className="text-xs text-neutral-600 whitespace-pre-wrap mt-1.5 leading-relaxed break-words select-text max-h-24 overflow-y-auto overscroll-contain">
             {body}
           </p>
         )}
 
         <div className="flex items-center justify-between gap-2 mt-2.5">
-          <div className="flex items-center flex-wrap gap-2 text-[11px] text-white/70">
+          <div className="flex items-center flex-wrap gap-2 text-[11px] text-neutral-500">
             <span
-              className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-white/20 text-white shrink-0`}
+              className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 text-black shrink-0`}
             >
               <span>{author}</span>
             </span>
@@ -458,7 +458,7 @@ export function CommitDetailPanel({
             type="button"
             onClick={onSummarize}
             disabled={isSummarizing}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 group rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 group text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0"
           >
             {isSummarizing ? (
               <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
@@ -470,10 +470,10 @@ export function CommitDetailPanel({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex flex-col p-4">
+      <div className="flex-1 min-h-0 flex flex-col p-4 bg-white">
         <div className="flex items-center justify-between gap-2 pb-2 p-2 mb-3 shrink-0">
-          <div className="flex items-center gap-1.5 text-sm font-medium text-white">
-            <FileTextIcon className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 text-xs font-medium text-black">
+            <FileTextIcon className="w-3.5 h-3.5 text-neutral-600" />
             <span>
               {isLoading
                 ? 'Loading...'
@@ -481,9 +481,9 @@ export function CommitDetailPanel({
             </span>
           </div>
           {!isLoading && !error && (
-            <div className="flex flex-col items-center gap-2  text-xs font-medium shrink-0">
-              <span className="text-white">+{totalAdditions}</span>
-              <span className="text-white">-{totalDeletions}</span>
+            <div className="flex items-center gap-2 text-xs font-medium shrink-0">
+              <span className="text-green-600 font-semibold">+{totalAdditions}</span>
+              <span className="text-red-600 font-semibold">-{totalDeletions}</span>
             </div>
           )}
         </div>
@@ -492,58 +492,58 @@ export function CommitDetailPanel({
           {summaryError && (
             <div
               role="alert"
-              className={`mb-3 rounded-xl p-3 text-xs bg-white/10 backdrop-blur-sm text-white ${summaryError.isRateLimit
-                ? 'border border-red-400/50 text-white shadow-sm'
-                : 'border border-dashed border-white/20 text-white/90'
+              className={`mb-3 p-3 text-xs bg-red-50 text-red-700 border-0 outline-none ring-0 ${summaryError.isRateLimit
+                ? 'shadow-sm font-medium'
+                : ''
                 }`}
             >
               {summaryError.isRateLimit && (
-                <p className="font-semibold text-red-300 mb-0.5">Daily limit reached</p>
+                <p className="font-semibold text-red-800 mb-0.5">Daily limit reached</p>
               )}
               <p className="leading-relaxed">{summaryError.message}</p>
             </div>
           )}
 
           {summary && (
-            <div className="mb-3 rounded-xl bg-white/10 backdrop-blur-sm p-3.5 shadow-sm text-white">
+            <div className="mb-3 bg-neutral-50 p-3.5 shadow-sm text-black border-0 outline-none ring-0">
               <div className="flex items-center justify-between gap-2 pb-2 mb-2">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
-                  <SparklesIcon className="w-5 h-5 text-white fill-blue-600 shrink-0" />
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-black">
+                  <SparklesIcon className="w-5 h-5 text-blue-600 fill-blue-600 shrink-0" />
                   <span>AI Summary</span>
                 </div>
                 <div className="flex items-center flex-wrap gap-1.5 shrink-0">
-                  <span className="text-[10px]  px-1.5 py-0.5 rounded bg-white/20 text-white">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-neutral-200 text-neutral-800 font-medium">
                     {summary.provider} · {summary.model === 'llama-3.3-70b-versatile' || summary.model.toLowerCase() === 'penguin' ? 'Penguin' : summary.model}
                   </span>
                   {summary.cached && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/20 text-white/90">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-neutral-200 text-neutral-800">
                       cached
                     </span>
                   )}
                   {summary.truncated && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200">
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-amber-100 text-amber-800">
                       truncated
                     </span>
                   )}
                 </div>
               </div>
-              <div className="select-text text-white">
+              <div className="select-text text-black">
                 <MarkdownViewer content={summary.text} />
               </div>
             </div>
           )}
 
           {isLoading ? (
-            <div className="py-12 flex items-center justify-center gap-2 text-xs text-white/70">
-              <RefreshCwIcon className="w-4 h-4 animate-spin text-white/80" />
+            <div className="py-12 flex items-center justify-center gap-2 text-xs text-neutral-500">
+              <RefreshCwIcon className="w-4 h-4 animate-spin text-neutral-600" />
               <span>Fetching commit details...</span>
             </div>
           ) : error ? (
-            <div className="border border-dashed border-white/20 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-xs text-white">
+            <div className="bg-red-50 p-4 text-xs text-red-700 border-0 outline-none ring-0">
               {error}
             </div>
           ) : files.length === 0 ? (
-            <p className="text-xs text-white/60 py-8 text-center">
+            <p className="text-xs text-neutral-500 py-8 text-center">
               No changed files found for this commit.
             </p>
           ) : (
@@ -560,22 +560,22 @@ export function CommitDetailPanel({
                 return (
                   <li
                     key={file.filename}
-                    className="rounded-xl shadow-xs overflow-hidden"
+                    className="shadow-xs overflow-hidden outline-none ring-0"
                   >
                     <button
                       type="button"
                       onClick={() => toggleFile(file.filename)}
                       aria-expanded={isExpanded}
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors bg-white/10 backdrop-blur-sm cursor-pointer hover:bg-white/20"
+                      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors bg-white cursor-pointer border border-black/5 hover:bg-neutral-100 outline-none ring-0 focus:outline-none focus:ring-0"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronDownIcon
-                          className={`w-3.5 h-3.5 text-white/70 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-white' : ''
+                          className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-black' : ''
                             }`}
                         />
-                        <FileTextIcon className="w-3.5 h-3.5  text-white/70 shrink-0" />
+                        <FileTextIcon className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
                         <span
-                          className=" text-xs text-white font-medium truncate"
+                          className="text-xs text-black font-medium truncate"
                           title={displayFilename}
                         >
                           {displayFilename}
@@ -583,13 +583,13 @@ export function CommitDetailPanel({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded capitalize ${statusInfo.badgeClass}`}
+                          className={`text-[10px] font-medium px-1.5 py-0.5 capitalize ${statusInfo.badgeClass}`}
                         >
                           {statusInfo.label}
                         </span>
-                        <div className="flex items-center gap-1.5  text-[11px] font-medium">
-                          <span className="text-white">+{file.additions}</span>
-                          <span className="text-white">-{file.deletions}</span>
+                        <div className="flex items-center gap-1.5 text-[11px] font-medium">
+                          <span className="text-green-600 font-semibold">+{file.additions}</span>
+                          <span className="text-red-600 font-semibold">-{file.deletions}</span>
                         </div>
                       </div>
                     </button>
@@ -602,24 +602,24 @@ export function CommitDetailPanel({
                         }`}
                     >
                       <div className="min-h-0 overflow-hidden">
-                        <div className="bg-white/10 backdrop-blur-sm p-2.5">
+                        <div className="bg-neutral-50 p-2.5 border-0 outline-none ring-0">
                           {file.patch === null || file.patch === undefined ? (
-                            <p className="text-xs text-white/60  py-2 px-1">
+                            <p className="text-xs text-neutral-500 py-2 px-1">
                               Binary file or patch not available.
                             </p>
                           ) : (
                             <pre
                               tabIndex={isExpanded ? 0 : -1}
-                              className="p-2 bg-white/10 backdrop-blur-md rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed  select-text text-white/90 border border-white/10"
+                              className="p-2 bg-white rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed select-text text-neutral-900 border-0 outline-none ring-0"
                             >
                               {file.patch.split('\n').map((line, idx) => {
-                                let lineClass = 'text-white'
+                                let lineClass = 'text-neutral-800'
                                 if (line.startsWith('+') && !line.startsWith('+++')) {
-                                  lineClass = 'bg-green-600/50 text-white'
+                                  lineClass = 'bg-green-100 text-green-800 font-medium'
                                 } else if (line.startsWith('-') && !line.startsWith('---')) {
-                                  lineClass = 'bg-red-600/50 text-white'
+                                  lineClass = 'bg-red-100 text-red-800 font-medium'
                                 } else if (line.startsWith('@@')) {
-                                  lineClass = 'bg-blue-600/50 text-white'
+                                  lineClass = 'bg-blue-100 text-blue-800 font-semibold'
                                 }
                                 return (
                                   <div key={idx} className={`px-2 whitespace-pre ${lineClass}`}>

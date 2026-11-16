@@ -1,9 +1,8 @@
 import { redirect } from 'next/navigation'
 import { requireUser } from '@/lib/auth'
 import { cookies } from 'next/headers'
-import { LogoutButton } from '@/components/logout-button'
-import { GitBranchIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { UserLogoutPill } from '@/components/user-logout-pill'
+import { Navbar } from '@/components/navbar'
 import { RepoCommitsList } from '@/components/repo-commits-card'
 import { db } from '@/db/index'
 import { commits, githubInstallations, installationRepos, userAiSettings } from '@/db/schema'
@@ -113,35 +112,22 @@ export default async function SettingsPage({
           error={error ? errorMessage(error) : null}
           connectAction={
             <form action="/api/github/install" method="GET">
-              <Button
+              <button
                 type="submit"
-                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-2xl bg-white/5 border-0 hover:bg-white/10 backdrop-blur-md text-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium border-0 outline-none ring-0 focus:outline-none focus:ring-0"
               >
-                <span className="text-white">Connect</span>
-              </Button>
+                <span className="text-black">Connect</span>
+              </button>
             </form>
           }
         />
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 z-20 pointer-events-none p-3 sm:p-4">
-        <div className="mx-auto w-full flex items-center justify-between gap-4">
-          <div className="flex items-center bg-white/10 hover:bg-white/15 rounded-2xl backdrop-blur-md p-1 gap-2.5 min-w-0 pointer-events-auto transition-colors shadow-lg">
-            {user.user.avatarUrl && (
-              <img
-                src={user.user.avatarUrl}
-                alt={user.user.name || user.user.login}
-                title={user.user.name || user.user.login}
-                className="w-9 h-9 shrink-0 rounded-full object-cover"
-              />
-            )}
-          </div>
-
-          <div className="pointer-events-auto">
-            <LogoutButton />
-          </div>
-        </div>
-      </footer>
+      <UserLogoutPill
+        avatarUrl={user.user.avatarUrl}
+        name={user.user.name}
+        login={user.user.login}
+      />
     </div>
   )
 }

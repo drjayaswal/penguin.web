@@ -59,13 +59,12 @@ export function LogoutButton() {
       aria-label={armed ? 'Cancel sign out' : 'Sign out'}
       onClick={handleClick}
       disabled={isLoggingOut}
-      className={`relative flex items-center justify-center w-9 h-9 rounded-xl backdrop-blur-md transition-all duration-200 cursor-pointer shadow-lg${
-        armed
+      className={`relative flex items-center justify-center w-9 h-9 transition-all duration-200 cursor-pointer shadow-lg border-0 outline-none ring-0 ${armed
           ? 'bg-red-600 text-white'
-          : 'bg-white/10 hover:bg-white/20 hover:text-white text-white/80'
-      }`}
+          : 'bg-white text-black hover:bg-neutral-100'
+        }`}
     >
-      {armed ? <Square className="w-5 h-5 fill-white" /> : <LogOutIcon className="w-5 h-5" />}
+      {armed ? <Square className="w-5 h-5 fill-white" /> : <LogOutIcon className="w-5 h-5 text-black" />}
 
       {armed && (
         <svg
