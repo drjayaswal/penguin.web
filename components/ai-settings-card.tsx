@@ -308,8 +308,8 @@ export function AiSettingsSheet({
           >
             <div className="flex items-start justify-between gap-3 pb-3 border-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 bg-neutral-100 flex items-center justify-center shrink-0">
-                  <SparklesIcon className="w-4 h-4 text-blue-600 fill-blue-600" />
+                <div className="w-8 h-8 flex items-center justify-center shrink-0">
+                  <SparklesIcon className="w-7 h-7 text-white fill-blue-600" />
                 </div>
                 <div>
                   <h2 id="ai-settings-sheet-title" className="text-sm font-semibold text-black leading-tight">

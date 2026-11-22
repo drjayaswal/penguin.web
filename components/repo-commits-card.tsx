@@ -333,7 +333,7 @@ export function RepoCommitsCard({
                 </p>
               </div>
             ) : (
-              <ul className="flex flex-col divide-y divide-neutral-100">
+              <ul className="flex flex-col divide-y">
                 {filteredCommits.map((commit) => {
                   const firstLine = (commit.message || '').split('\n')[0]
                   const author =
@@ -347,19 +347,35 @@ export function RepoCommitsCard({
                         onClick={() =>
                           onSelectCommit?.(commit, { repoId: repo.repoId, fullName: repo.fullName })
                         }
-                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0 ${isSelected ? 'bg-blue-50 text-blue-600' : 'hover:bg-neutral-50 text-neutral-800'
+                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0 ${isSelected
+                            ? 'bg-green-600 text-white'
+                            : 'hover:bg-neutral-100 text-neutral-800'
                           }`}
                       >
                         <div className="flex items-baseline gap-2 min-w-0">
-                          <span className="text-[11px] text-blue-600 bg-blue-50 font-bold px-1.5 py-0.5 shrink-0">
+                          <span
+                            className={`text-[11px] font-bold px-1.5 py-0.5 shrink-0 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10'
+                              }`}
+                          >
                             {commit.sha.slice(0, 7)}
                           </span>
-                          <span className="text-black font-medium truncate" title={commit.message}>
+                          <span
+                            className={`font-medium truncate ${isSelected ? 'text-white' : 'text-black'}`}
+                            title={commit.message}
+                          >
                             {firstLine}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0 text-neutral-500 text-[11px]">
-                          <span className="truncate max-w-[90px] sm:max-w-[120px] text-black bg-neutral-100 px-2 py-0.5 rounded-md">{author}</span>
+                        <div
+                          className={`flex items-center gap-2 shrink-0 text-[11px] ${isSelected ? 'text-green-100' : 'text-neutral-500'
+                            }`}
+                        >
+                          <span
+                            className={`truncate max-w-[90px] sm:max-w-[120px] px-2 py-0.5 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10'
+                              }`}
+                          >
+                            {author}
+                          </span>
                           <span suppressHydrationWarning>{formatCommitDate(commit.committedAt)}</span>
                         </div>
                       </button>
@@ -646,7 +662,7 @@ export function RepoCommitsList({
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dashed border-neutral-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-dashed border-neutral-500">
           <div>
             <h1 className="text-3xl font-semibold text-black tracking-tight">{title}</h1>
             <p className="text-xs text-neutral-600">{description}</p>

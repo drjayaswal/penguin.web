@@ -100,7 +100,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 py-8 flex flex-col gap-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-dashed border-black/50">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-dashed border-neutral-500">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-semibold text-black tracking-tight">Workflows</h1>
@@ -128,8 +128,8 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
       </div>
 
       {workflows.length === 0 ? (
-        <div className="flex flex-col items-center justify-center !h-[450px] px-5 text-center  bg-white shadow-md border-0 outline-none ring-0">
-          <div className="w-12 h-12  bg-neutral-100 flex items-center justify-center text-black mb-3 border-0">
+        <div className="flex flex-col items-center justify-center !h-[450px] px-5 text-center bg-white border-0 outline-none ring-0">
+          <div className="w-12 h-12 flex items-center justify-center text-black mb-3 border-0">
             <GitForkIcon className="w-6 h-6" />
           </div>
           <h2 className="text-base font-semibold text-black">No workflows yet</h2>

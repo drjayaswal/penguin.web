@@ -49,9 +49,8 @@ export function Navbar({
         </button>
 
         <div
-          className={`grid transition-[grid-template-columns,opacity] duration-500 ease-out ${isOpen ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0"
+          className={`grid transition-[grid-template-columns,opacity] duration-500 ease-out ${isOpen ? "grid-cols-[1fr] opacity-100" : "grid-cols-[0fr] opacity-0 pointer-events-none"
             }`}
-          inert={!isOpen}
           aria-hidden={!isOpen}
         >
           <div className="min-w-0 overflow-hidden">

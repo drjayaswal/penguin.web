@@ -525,7 +525,7 @@ function WorkflowCanvasInner({ workflow, initialNodes, initialEdges }: WorkflowC
       </header>
 
       {runBanner && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-black text-white text-xs font-medium shadow-lg animate-in fade-in slide-in-from-top-2 border-0 outline-none ring-0">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 px-4 py-2 bg-white text-blue-600 text-xs font-medium animate-in fade-in slide-in-from-top-2 border-0 outline-none ring-0">
           {runBanner}
         </div>
       )}

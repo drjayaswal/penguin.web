@@ -250,11 +250,11 @@ function MarkdownViewer({ content }: { content: string }) {
         <div key={`table-${i}`} className="my-2.5 overflow-x-auto bg-neutral-50 border-0 outline-none ring-0">
           <table className="w-full border-collapse text-left text-xs">
             <thead>
-              <tr className="bg-neutral-100">
+              <tr className="bg-blue-600 text-white">
                 {headers.map((h, colIdx) => (
                   <th
                     key={colIdx}
-                    className="px-3 py-2 font-semibold text-black text-[11px]"
+                    className="px-3 py-2 font-semibold text-[11px]"
                   >
                     {renderInlineMarkdown(h, `th-${i}-${colIdx}`)}
                   </th>
@@ -505,24 +505,24 @@ export function CommitDetailPanel({
           )}
 
           {summary && (
-            <div className="mb-3 bg-neutral-50 p-3.5 shadow-sm text-black border-0 outline-none ring-0">
+            <div className="mb-3 bg-blue-600/10 p-3.5 shadow-sm text-black border-0 outline-none ring-0">
               <div className="flex items-center justify-between gap-2 pb-2 mb-2">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-black">
-                  <SparklesIcon className="w-5 h-5 text-blue-600 fill-blue-600 shrink-0" />
+                  <SparklesIcon className="w-5 h-5 text-transparent fill-blue-600 shrink-0" />
                   <span>AI Summary</span>
                 </div>
                 <div className="flex items-center flex-wrap gap-1.5 shrink-0">
-                  <span className="text-[10px] px-1.5 py-0.5 bg-neutral-200 text-neutral-800 font-medium">
+                  <span className="text-[10px] px-1.5 py-0.5 bg-orange-600 text-white font-medium">
                     {summary.provider} · {summary.model === 'llama-3.3-70b-versatile' || summary.model.toLowerCase() === 'penguin' ? 'Penguin' : summary.model}
                   </span>
                   {summary.cached && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-neutral-200 text-neutral-800">
-                      cached
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-cyan-500 text-white">
+                      Cached
                     </span>
                   )}
                   {summary.truncated && (
-                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-amber-100 text-amber-800">
-                      truncated
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 bg-amber-500 text-white">
+                      Truncated
                     </span>
                   )}
                 </div>
@@ -547,7 +547,7 @@ export function CommitDetailPanel({
               No changed files found for this commit.
             </p>
           ) : (
-            <ul className="flex flex-col gap-2.5">
+            <ul className="flex flex-col gap-0.5">
               {files.map((file) => {
                 const isExpanded = expandedFiles.has(file.filename)
                 const statusInfo = getFileStatusInfo(file.status)
@@ -566,16 +566,19 @@ export function CommitDetailPanel({
                       type="button"
                       onClick={() => toggleFile(file.filename)}
                       aria-expanded={isExpanded}
-                      className="w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors bg-white cursor-pointer border border-black/5 hover:bg-neutral-100 outline-none ring-0 focus:outline-none focus:ring-0"
+                      className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors cursor-pointer border outline-none ring-0 focus:outline-none focus:ring-0 ${isExpanded
+                        ? 'bg-green-600 text-white border-green-600 border-b-0'
+                        : 'bg-white text-neutral-800 hover:bg-neutral-100'
+                        }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronDownIcon
-                          className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-black' : ''
+                          className={`w-3.5 h-3.5 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-white' : 'text-neutral-500'
                             }`}
                         />
-                        <FileTextIcon className="w-3.5 h-3.5 text-neutral-500 shrink-0" />
+                        <FileTextIcon className={`w-3.5 h-3.5 shrink-0 ${isExpanded ? 'text-white' : 'text-neutral-500'}`} />
                         <span
-                          className="text-xs text-black font-medium truncate"
+                          className={`text-xs font-medium truncate ${isExpanded ? 'text-white' : 'text-black'}`}
                           title={displayFilename}
                         >
                           {displayFilename}
@@ -583,13 +586,14 @@ export function CommitDetailPanel({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 capitalize ${statusInfo.badgeClass}`}
+                          className={`text-[10px] font-medium px-1.5 py-0.5 capitalize ${isExpanded ? 'text-white bg-white/10' : statusInfo.badgeClass
+                            }`}
                         >
                           {statusInfo.label}
                         </span>
                         <div className="flex items-center gap-1.5 text-[11px] font-medium">
-                          <span className="text-green-600 font-semibold">+{file.additions}</span>
-                          <span className="text-red-600 font-semibold">-{file.deletions}</span>
+                          <span className={isExpanded ? 'text-white font-semibold' : 'text-green-600 font-semibold'}>+{file.additions}</span>
+                          <span className={isExpanded ? 'text-blue-100 font-semibold' : 'text-red-600 font-semibold'}>-{file.deletions}</span>
                         </div>
                       </div>
                     </button>
@@ -597,12 +601,12 @@ export function CommitDetailPanel({
                     <div
                       aria-hidden={!isExpanded}
                       className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none ${isExpanded
-                        ? 'grid-rows-[1fr] opacity-100'
+                        ? 'grid-rows-[1fr] opacity-100 border border-green-600'
                         : 'grid-rows-[0fr] opacity-0 pointer-events-none'
                         }`}
                     >
                       <div className="min-h-0 overflow-hidden">
-                        <div className="bg-neutral-50 p-2.5 border-0 outline-none ring-0">
+                        <div className="bg-white border-0 outline-none ring-0">
                           {file.patch === null || file.patch === undefined ? (
                             <p className="text-xs text-neutral-500 py-2 px-1">
                               Binary file or patch not available.
@@ -610,16 +614,16 @@ export function CommitDetailPanel({
                           ) : (
                             <pre
                               tabIndex={isExpanded ? 0 : -1}
-                              className="p-2 bg-white rounded-b-[10px] overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed select-text text-neutral-900 border-0 outline-none ring-0"
+                              className="p-2 overflow-auto max-h-[340px] overscroll-contain text-[11px] leading-relaxed select-text text-neutral-900 border-0 outline-none ring-0"
                             >
                               {file.patch.split('\n').map((line, idx) => {
-                                let lineClass = 'text-neutral-800'
+                                let lineClass = 'text-neutral-600'
                                 if (line.startsWith('+') && !line.startsWith('+++')) {
-                                  lineClass = 'bg-green-100 text-green-800 font-medium'
+                                  lineClass = 'bg-green-100 text-green-600 font-medium'
                                 } else if (line.startsWith('-') && !line.startsWith('---')) {
-                                  lineClass = 'bg-red-100 text-red-800 font-medium'
+                                  lineClass = 'bg-red-100 text-red-600 font-medium'
                                 } else if (line.startsWith('@@')) {
-                                  lineClass = 'bg-blue-100 text-blue-800 font-semibold'
+                                  lineClass = 'bg-blue-100 text-blue-600 font-semibold'
                                 }
                                 return (
                                   <div key={idx} className={`px-2 whitespace-pre ${lineClass}`}>
