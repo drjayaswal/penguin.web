@@ -1,8 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   title: 'Penguin',
@@ -15,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-skin antialiased select-none text-black min-h-screen bg-[url('/blue.png')] bg-cover bg-center bg-fixed bg-no-repeat`}>
+    <html className="scroll-smooth motion-reduce:scroll-auto" lang="en" suppressHydrationWarning>
+      <body className="m-0 min-h-screen bg-bg text-black antialiased font-sans">
         {children}
       </body>
     </html>

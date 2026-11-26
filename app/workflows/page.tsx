@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { db } from "@/db/index"
 import { workflows, workflowNodes } from "@/db/schema"
 import { desc, eq, sql } from "drizzle-orm"
+import { Navbar } from "@/components/navbar"
 import { WorkflowListClient } from "@/components/workflows/workflow-list-client"
 
 export const dynamic = "force-dynamic"
@@ -36,7 +37,8 @@ export default async function WorkflowsPage() {
   }))
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen pt-24">
+      <Navbar user={user} />
       <WorkflowListClient initialWorkflows={formattedWorkflows} />
     </main>
   )

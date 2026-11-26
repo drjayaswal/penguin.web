@@ -5,6 +5,7 @@
 .env.production.local
 node_modules
 .next
+.next-dev
 out
 build
 dist

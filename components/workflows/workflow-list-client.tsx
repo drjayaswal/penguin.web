@@ -115,7 +115,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
             type="button"
             onClick={handleCreate}
             disabled={isCreating}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 group  text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 group text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0"
           >
             {isCreating ? (
               <RefreshCwIcon className="w-3.5 h-3.5 animate-spin" />
@@ -140,7 +140,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
             type="button"
             onClick={handleCreate}
             disabled={isCreating}
-            className="flex items-center gap-2 px-4 py-2  bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0"
           >
             <PlusIcon className="w-4 h-4" />
             <span>Create your first workflow</span>
@@ -162,7 +162,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
 
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1 w-full sm:w-auto">
-                    <div className="w-9 h-9  bg-white flex items-center justify-center text-black shrink-0 border-0">
+                    <div className="w-9 h-9 bg-white flex items-center justify-center text-black shrink-0 border-0">
                       <GitBranchIcon className="w-6 h-6 text-black" />
                     </div>
 
@@ -236,7 +236,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
                         setRenamingText(wf.name)
                       }}
                       title="Rename"
-                      className="p-2  text-xs text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors cursor-pointer border-0 outline-none ring-0"
+                      className="p-2 text-xs text-neutral-600 hover:text-black hover:bg-neutral-100 transition-colors cursor-pointer border-0 outline-none ring-0"
                     >
                       <Edit2Icon className="w-3.5 h-3.5" />
                     </button>
@@ -250,7 +250,7 @@ export function WorkflowListClient({ initialWorkflows }: { initialWorkflows: Wor
                       }}
                       disabled={isDeletingCurrent}
                       title="Delete workflow"
-                      className="p-2  text-neutral-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50 border-0 outline-none ring-0"
+                      className="p-2 text-neutral-600 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer disabled:opacity-50 border-0 outline-none ring-0"
                     >
                       <Trash2Icon className="w-3.5 h-3.5" />
                     </button>

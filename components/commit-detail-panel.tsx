@@ -492,10 +492,7 @@ export function CommitDetailPanel({
           {summaryError && (
             <div
               role="alert"
-              className={`mb-3 p-3 text-xs bg-red-50 text-red-700 border-0 outline-none ring-0 ${summaryError.isRateLimit
-                ? 'shadow-sm font-medium'
-                : ''
-                }`}
+              className={`mb-3 p-3 text-xs bg-red-50 text-red-700 border-0 outline-none ring-0 ${summaryError.isRateLimit ? 'shadow-sm font-medium' : '' }`}
             >
               {summaryError.isRateLimit && (
                 <p className="font-semibold text-red-800 mb-0.5">Daily limit reached</p>
@@ -566,15 +563,11 @@ export function CommitDetailPanel({
                       type="button"
                       onClick={() => toggleFile(file.filename)}
                       aria-expanded={isExpanded}
-                      className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors cursor-pointer border outline-none ring-0 focus:outline-none focus:ring-0 ${isExpanded
-                        ? 'bg-green-600 text-white border-green-600 border-b-0'
-                        : 'bg-white text-neutral-800 hover:bg-neutral-100'
-                        }`}
+                      className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 text-left text-xs transition-colors cursor-pointer border outline-none ring-0 focus:outline-none focus:ring-0 ${isExpanded ? 'bg-green-600 text-white border-green-600 border-b-0' : 'bg-white text-neutral-800 hover:bg-neutral-100' }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronDownIcon
-                          className={`w-3.5 h-3.5 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-white' : 'text-neutral-500'
-                            }`}
+                          className={`w-3.5 h-3.5 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isExpanded ? 'rotate-180 text-white' : 'text-neutral-500' }`}
                         />
                         <FileTextIcon className={`w-3.5 h-3.5 shrink-0 ${isExpanded ? 'text-white' : 'text-neutral-500'}`} />
                         <span
@@ -586,8 +579,7 @@ export function CommitDetailPanel({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`text-[10px] font-medium px-1.5 py-0.5 capitalize ${isExpanded ? 'text-white bg-white/10' : statusInfo.badgeClass
-                            }`}
+                          className={`text-[10px] font-medium px-1.5 py-0.5 capitalize ${isExpanded ? 'text-white bg-white/10' : statusInfo.badgeClass }`}
                         >
                           {statusInfo.label}
                         </span>
@@ -600,10 +592,7 @@ export function CommitDetailPanel({
 
                     <div
                       aria-hidden={!isExpanded}
-                      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none ${isExpanded
-                        ? 'grid-rows-[1fr] opacity-100 border border-green-600'
-                        : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-                        }`}
+                      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out motion-reduce:transition-none ${isExpanded ? 'grid-rows-[1fr] opacity-100 border border-green-600' : 'grid-rows-[0fr] opacity-0 pointer-events-none' }`}
                     >
                       <div className="min-h-0 overflow-hidden">
                         <div className="bg-white border-0 outline-none ring-0">

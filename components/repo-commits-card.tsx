@@ -123,8 +123,7 @@ function AuthorSelect({
         <span className="truncate max-w-[130px] sm:max-w-[160px]">{selectedLabel}</span>
         <span className="text-[11px] text-neutral-500">({selectedCount})</span>
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 text-neutral-600 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''
-            }`}
+          className={`w-3.5 h-3.5 text-neutral-600 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : '' }`}
         />
       </button>
 
@@ -263,8 +262,7 @@ export function RepoCommitsCard({
       >
         <div className="flex items-center gap-2.5 min-w-0">
           <ChevronDownIcon
-            className={`w-4 h-4 text-neutral-600 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isOpen ? 'rotate-180' : ''
-              }`}
+            className={`w-4 h-4 text-neutral-600 transition-transform duration-300 motion-reduce:transition-none shrink-0 ${isOpen ? 'rotate-180' : '' }`}
           />
           {repo.isPrivate ? (
             <LockIcon className="h-4 w-4 shrink-0 text-neutral-600" aria-label="Private repository" />
@@ -303,8 +301,7 @@ export function RepoCommitsCard({
       </div>
 
       <div
-        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${isOpen ? 'max-h-[460px] opacity-600/10' : 'max-h-0 opacity-0 pointer-events-none'
-          }`}
+        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${isOpen ? 'max-h-[460px] opacity-600/10' : 'max-h-0 opacity-0 pointer-events-none' }`}
       >
         <div className="h-[360px] flex flex-col bg-white p-4 border-0 outline-none ring-0">
           <div className="flex sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-600/10 shrink-0">
@@ -356,15 +353,11 @@ export function RepoCommitsCard({
                         onClick={() =>
                           onSelectCommit?.(commit, { repoId: repo.repoId, fullName: repo.fullName })
                         }
-                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0 ${isSelected
-                          ? 'bg-green-600 text-white'
-                          : 'hover:bg-neutral-600/10 text-neutral-800'
-                          }`}
+                        className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0 ${isSelected ? 'bg-green-600 text-white' : 'hover:bg-neutral-600/10 text-neutral-800' }`}
                       >
                         <div className="flex items-baseline gap-2 min-w-0">
                           <span
-                            className={`text-[11px] font-bold px-1.5 py-0.5 shrink-0 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10'
-                              }`}
+                            className={`text-[11px] font-bold px-1.5 py-0.5 shrink-0 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10' }`}
                           >
                             {commit.sha.slice(0, 7)}
                           </span>
@@ -376,12 +369,10 @@ export function RepoCommitsCard({
                           </span>
                         </div>
                         <div
-                          className={`flex items-center gap-2 shrink-0 text-[11px] ${isSelected ? 'text-green-600/10' : 'text-neutral-500'
-                            }`}
+                          className={`flex items-center gap-2 shrink-0 text-[11px] ${isSelected ? 'text-green-600/10' : 'text-neutral-500' }`}
                         >
                           <span
-                            className={`truncate max-w-[90px] sm:max-w-[120px] px-2 py-0.5 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10'
-                              }`}
+                            className={`truncate max-w-[90px] sm:max-w-[120px] px-2 py-0.5 ${isSelected ? 'text-white bg-white/10' : 'text-blue-600 bg-blue-600/10' }`}
                           >
                             {author}
                           </span>
@@ -661,8 +652,7 @@ export function RepoCommitsList({
 
   return (
     <div
-      className={`mx-auto w-full px-3 sm:px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl'
-        }`}
+      className={`mx-auto w-full px-3 sm:px-6 py-6 pt-6 pb-28 flex flex-col gap-8 transition-[max-width] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'max-w-2xl lg:max-w-5xl 2xl:max-w-6xl' : 'max-w-2xl' }`}
     >
       <div className="flex flex-col gap-4">
         {error && (
@@ -690,10 +680,7 @@ export function RepoCommitsList({
       </div>
 
       <div
-        className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
-          ? 'gap-6 lg:grid-cols-[0.78fr_1fr]'
-          : 'gap-0 lg:grid-cols-[1fr_0fr]'
-          }`}
+        className={`grid grid-cols-1 items-start transition-[grid-template-columns,gap] duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'gap-6 lg:grid-cols-[0.78fr_1fr]' : 'gap-0 lg:grid-cols-[1fr_0fr]' }`}
       >
         <section className="min-w-0 flex flex-col gap-4">
           {repos.length === 0 ? (
@@ -726,16 +713,10 @@ export function RepoCommitsList({
           <aside
             ref={panelRef}
             aria-label="Selected commit details"
-            className={`min-w-0 lg:sticky lg:top-6 ${isPanelExpanded
-              ? 'overflow-x-clip p-0.5 -m-0.5'
-              : 'overflow-hidden pointer-events-none'
-              }`}
+            className={`min-w-0 lg:sticky lg:top-6 ${isPanelExpanded ? 'overflow-x-clip p-0.5 -m-0.5' : 'overflow-hidden pointer-events-none' }`}
           >
             <div
-              className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
-                ? 'opacity-600/10 translate-x-0'
-                : 'opacity-0 translate-x-6'
-                }`}
+              className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded ? 'opacity-600/10 translate-x-0' : 'opacity-0 translate-x-6' }`}
             >
               <CommitDetailPanel
                 commit={selectedEntry.commit}

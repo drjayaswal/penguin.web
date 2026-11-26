@@ -293,18 +293,14 @@ export function AiSettingsSheet({
       {mounted && (
         <div
           onClick={() => setIsOpen(false)}
-          className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/50 backdrop-blur-md transition-opacity duration-300 ${animating ? 'opacity-100' : 'opacity-0'
-            }`}
+          className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/50 backdrop-blur-md transition-opacity duration-300 ${animating ? 'opacity-100' : 'opacity-0' }`}
         >
           <aside
             role="dialog"
             aria-modal="true"
             aria-labelledby="ai-settings-sheet-title"
             onClick={(e) => e.stopPropagation()}
-            className={`w-full sm:w-[420px] max-h-[85vh] sm:max-h-full sm:h-full bg-white rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-5 transform transition-all duration-300 ease-out overflow-y-auto border-0 outline-none ring-0 ${animating
-              ? 'translate-y-0 sm:translate-x-0'
-              : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
-              }`}
+            className={`w-full sm:w-[420px] max-h-[85vh] sm:max-h-full sm:h-full bg-white rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-5 transform transition-all duration-300 ease-out overflow-y-auto border-0 outline-none ring-0 ${animating ? 'translate-y-0 sm:translate-x-0' : 'translate-y-full sm:translate-y-0 sm:translate-x-full' }`}
           >
             <div className="flex items-start justify-between gap-3 pb-3 border-0">
               <div className="flex items-center gap-2.5">
@@ -437,10 +433,7 @@ export function AiSettingsSheet({
                   <p
                     role="status"
                     aria-live="polite"
-                    className={`text-xs px-3 py-2 border-0 outline-none ring-0 ${statusMessage.type === 'error'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-green-100 text-green-800'
-                      }`}
+                    className={`text-xs px-3 py-2 border-0 outline-none ring-0 ${statusMessage.type === 'error' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800' }`}
                   >
                     {statusMessage.text}
                   </p>

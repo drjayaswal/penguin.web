@@ -58,18 +58,14 @@ export function NodeEditPanel({ node, onClose, onUpdate, onDelete }: NodeEditPan
   return (
     <div
       onClick={onClose}
-      className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/40 backdrop-blur-md transition-opacity duration-300 ${animating ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+      className={`fixed inset-0 z-50 flex justify-end items-end sm:items-stretch bg-black/40 backdrop-blur-md transition-opacity duration-300 ${animating ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none' }`}
     >
       <aside
         role="dialog"
         aria-modal="true"
         aria-label="Node settings"
         onClick={(e) => e.stopPropagation()}
-        className={`w-full sm:w-[400px] max-h-[85vh] sm:max-h-full sm:h-full bg-white rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-4 transform transition-all duration-300 ease-out overflow-y-auto border-0 outline-none ring-0 ${animating
-          ? 'translate-y-0 sm:translate-x-0'
-          : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
-          }`}
+        className={`w-full sm:w-[400px] max-h-[85vh] sm:max-h-full sm:h-full bg-white rounded-t-4xl sm:rounded-none shadow-2xl p-5 sm:p-6 flex flex-col gap-4 transform transition-all duration-300 ease-out overflow-y-auto border-0 outline-none ring-0 ${animating ? 'translate-y-0 sm:translate-x-0' : 'translate-y-full sm:translate-y-0 sm:translate-x-full' }`}
       >
         {node && (
           <>

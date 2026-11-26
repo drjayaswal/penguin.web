@@ -1,63 +1,37 @@
-import { cookies } from "next/headers"
-import { requireUser } from "@/lib/auth"
-import { Navbar } from "@/components/navbar"
+import { cookies } from 'next/headers'
+import { requireUser } from '@/lib/auth'
+import { Navbar } from '@/components/navbar'
+import { SiteFooter } from '@/components/site-footer'
+import { GitBranch, Workflow, FileText } from 'lucide-react'
 
+const releases = [
+  { date: 'November 2026', title: 'A clearer view of your workflows', Icon: Workflow, text: 'Build and explore interactive flow graphs for your branches and pipelines. Drag, connect, and inspect node details directly on the canvas.' },
+  { date: 'November 2026', title: 'The context behind every commit', Icon: FileText, text: 'Connect your preferred AI provider to generate concise change summaries, identify risks, and follow the work without switching tools.' },
+  { date: 'October 2026', title: 'Your repositories, together', Icon: GitBranch, text: 'Choose which organizations and repositories Penguin can access through the GitHub App, then sync their latest commits into your workspace.' },
+]
 export default async function WhatsNewPage() {
-  const cookieStore = cookies()
-  const user = await requireUser(cookieStore.toString())
-
+  const user = await requireUser(cookies().toString())
   return (
-    <main className="relative min-h-screen w-screen overflow-x-hidden text-neutral-900 select-none pb-20">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[url('/blue.png')] bg-cover bg-center bg-no-repeat" />
-      <div className="pointer-events-none fixed inset-0 z-0 bg-blue-900/10" />
-
-      <Navbar isCentered={false} user={user} />
-
-      <section className="relative z-10 max-w-3xl mx-auto pt-24 sm:pt-28 px-4 sm:px-6">
-        <div className="bg-white/95 p-6 sm:p-10 shadow-2xl">
-          <span className="text-xs font-semibold tracking-wider uppercase text-blue-600 bg-blue-50 px-3 py-1 ">
-            Updates &amp; Releases
-          </span>
-          <h1 className="text-2xl sm:text-4xl font-serif text-neutral-900 mt-4 tracking-tight">
-            What&apos;s New in Penguin
-          </h1>
-          <p className="text-neutral-600 text-sm sm:text-base mt-2">
-            The latest features, improvements, and releases for your repositories and workflows.
-          </p>
-
-          <div className="mt-8 space-y-6">
-            <div className="border-t border-neutral-100 pt-5">
-              <span className="text-xs text-neutral-400 font-medium">November 2026</span>
-              <h2 className="text-lg font-semibold text-neutral-900 mt-1">
-                Visual Workflow Canvas &amp; Dynamic Flow Nodes
-              </h2>
-              <p className="text-neutral-600 text-sm mt-1 leading-relaxed">
-                Build and explore interactive flow graphs for all your branches and automated pipelines. Drag, connect, and inspect node details right from your browser.
-              </p>
+    <main>
+      <Navbar user={user} />
+      <header className="px-6 pb-16.25 pt-32.5 text-center md:pt-25">
+        <h1 className="my-6 font-editorial text-updates-heading font-medium tracking-word">What’s new<br />in Penguin.</h1>
+        <p className="text-19 text-muted">The latest improvements to your repositories and workflows.</p>
+      </header>
+      <div className="mx-auto mb-17.5 w-updates">
+        {releases.map(({ date, title, Icon, text }) => (
+          <article key={title} className="grid grid-cols-1 gap-4 py-9.5 md:grid-cols-update md:gap-10">
+            <div className="flex items-center gap-3 self-start pt-1.75 text-sm leading-normal text-muted-light">
+              <Icon size={22} strokeWidth={1.5} /><span>{date}</span>
             </div>
-
-            <div className="border-t border-neutral-100 pt-5">
-              <span className="text-xs text-neutral-400 font-medium">November 2026</span>
-              <h2 className="text-lg font-semibold text-neutral-900 mt-1">
-                AI-Powered Commit Summaries
-              </h2>
-              <p className="text-neutral-600 text-sm mt-1 leading-relaxed">
-                Connect your preferred AI provider to generate concise change summaries, identify risks, and track work context without switching tools.
-              </p>
+            <div>
+              <h2 className="mb-3.75 text-28 font-medium tracking-subtitle">{title}</h2>
+              <p className="text-17 leading-editorial text-muted">{text}</p>
             </div>
-
-            <div className="border-t border-neutral-100 pt-5">
-              <span className="text-xs text-neutral-400 font-medium">October 2026</span>
-              <h2 className="text-lg font-semibold text-neutral-900 mt-1">
-                Multi-Repository GitHub App Sync
-              </h2>
-              <p className="text-neutral-600 text-sm mt-1 leading-relaxed">
-                Securely grant access to individual organizations and repositories with fine-grained tokens and instant commit synchronization.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          </article>
+        ))}
+      </div>
+      <SiteFooter />
     </main>
   )
 }

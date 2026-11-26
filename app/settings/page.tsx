@@ -83,7 +83,8 @@ export default async function SettingsPage({
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <main className="w-full flex-1">
+      <Navbar user={user} />
+      <main className="w-full flex-1 pt-24">
         <RepoCommitsList
           repos={reposWithCommits}
           aiConfig={{

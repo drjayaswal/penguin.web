@@ -110,8 +110,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
 
   return (
     <div
-      className={`group relative bg-white p-3.5 select-none transition-[width,box-shadow] duration-300 ease-out border-0 outline-none ring-0 ${selected ? 'w-[320px] shadow-2xl' : 'w-[240px] sm:w-[260px] shadow-md'
-        }`}
+      className={`group relative bg-white p-3.5 select-none transition-[width,box-shadow] duration-300 ease-out border-0 outline-none ring-0 ${selected ? 'w-[320px] shadow-2xl' : 'w-[240px] sm:w-[260px] shadow-md' }`}
     >
       {data.kind !== 'start' && (
         <Handle
@@ -159,10 +158,7 @@ export const WorkflowCustomNode = memo(function WorkflowCustomNode({
         onDoubleClick={stopAll}
         onMouseDown={stopAll}
         onPointerDown={stopAll}
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${expanded
-          ? 'grid-rows-[1fr] opacity-100 mt-3.5 pt-3 border-t border-neutral-100'
-          : 'grid-rows-[0fr] opacity-0 pointer-events-none'
-          }`}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${expanded ? 'grid-rows-[1fr] opacity-100 mt-3.5 pt-3 border-t border-neutral-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none' }`}
       >
         <div className="overflow-hidden nodrag nopan">
           <div className="flex flex-col gap-2.5 text-xs">

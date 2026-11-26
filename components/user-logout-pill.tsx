@@ -58,9 +58,7 @@ export function UserLogoutPill({
         </button>
 
         <div
-          className={`flex items-center overflow-hidden transition-all duration-300 ease-out ${
-            isOpen ? "max-w-[140px] opacity-100 ml-1.5 mr-1" : "max-w-0 opacity-0 ml-0 mr-0 pointer-events-none"
-          }`}
+          className={`flex items-center overflow-hidden transition-all duration-300 ease-out ${ isOpen ? "max-w-[140px] opacity-100 ml-1.5 mr-1" : "max-w-0 opacity-0 ml-0 mr-0 pointer-events-none" }`}
         >
           <button
             type="button"

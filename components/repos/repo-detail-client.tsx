@@ -331,7 +331,7 @@ function FlowView({ commits }: { commits: CommitItem[] }) {
 
   return (
     <div className="overflow-auto py-4">
-      <svg width={svgW} height={svgH} className="font-mono">
+      <svg width={svgW} height={svgH} className="font-sans">
         {lines}
         {dots}
       </svg>

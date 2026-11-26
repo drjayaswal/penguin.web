@@ -2,32 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Shared accessibility and reset rules; page styling lives in JSX. */
 :root {
-  --bg: #FBFBFB;
-  --fg: #000000;
-  --muted: #4a4a4a;
+  --bg: #faf9f6;
+  --fg: #242424;
+  --muted: #77747d;
   --border: #1a1a1a;
 }
 
-body {
-  background-color: var(--bg);
-  color: var(--fg);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  margin: 0;
-  min-height: 100vh;
+*, *::before, *::after { border-width: 0 !important; }
+a { color: inherit; text-decoration: none; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button, a { transition: background-color .25s ease, color .25s ease, box-shadow .25s ease, transform .25s ease, opacity .25s ease; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #7771dc !important;
+  outline-offset: 3px;
 }
+button { border-radius: 999px; }
+input, select, textarea { border-radius: 14px; }
+button, input, select, textarea { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
+[class~="bg-white"], [class~="bg-white/95"], [class~="bg-white/90"] { border-radius: 24px; }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.logo {
-  width: 36px;
-  height: 36px;
-  display: block;
-}
-
-.invert {
-  filter: invert(1);
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }
