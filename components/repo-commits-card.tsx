@@ -2,12 +2,12 @@
 
 import { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import {
-  CheckIcon,
   ChevronDownIcon,
   GitBranchIcon,
   GlobeIcon,
   LockIcon,
   RefreshCwIcon,
+  BookOpenIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { AiProviderId } from '@/lib/ai/providers'
@@ -45,18 +45,18 @@ export interface RepoCommitsCardProps {
 }
 
 const AUTHOR_PALETTES: AuthorColorStyle[] = [
-  { bg: 'bg-blue-500/20', text: 'text-blue-300', dot: 'bg-blue-400' },
-  { bg: 'bg-purple-500/20', text: 'text-purple-300', dot: 'bg-purple-400' },
-  { bg: 'bg-emerald-500/20', text: 'text-emerald-300', dot: 'bg-emerald-400' },
-  { bg: 'bg-amber-500/20', text: 'text-amber-300', dot: 'bg-amber-400' },
-  { bg: 'bg-rose-500/20', text: 'text-rose-300', dot: 'bg-rose-400' },
-  { bg: 'bg-indigo-500/20', text: 'text-indigo-300', dot: 'bg-indigo-400' },
-  { bg: 'bg-teal-500/20', text: 'text-teal-300', dot: 'bg-teal-400' },
-  { bg: 'bg-cyan-500/20', text: 'text-cyan-300', dot: 'bg-cyan-400' },
-  { bg: 'bg-orange-500/20', text: 'text-orange-300', dot: 'bg-orange-400' },
-  { bg: 'bg-fuchsia-500/20', text: 'text-fuchsia-300', dot: 'bg-fuchsia-400' },
-  { bg: 'bg-lime-500/20', text: 'text-lime-300', dot: 'bg-lime-400' },
-  { bg: 'bg-sky-500/20', text: 'text-sky-300', dot: 'bg-sky-400' },
+  { bg: 'bg-blue-600/10', text: 'text-blue-600', dot: 'bg-blue-400' },
+  { bg: 'bg-purple-600/10', text: 'text-purple-600', dot: 'bg-purple-400' },
+  { bg: 'bg-emerald-600/10', text: 'text-emerald-600', dot: 'bg-emerald-400' },
+  { bg: 'bg-amber-600/10', text: 'text-amber-600', dot: 'bg-amber-400' },
+  { bg: 'bg-rose-600/10', text: 'text-rose-600', dot: 'bg-rose-400' },
+  { bg: 'bg-indigo-600/10', text: 'text-indigo-600', dot: 'bg-indigo-400' },
+  { bg: 'bg-teal-600/10', text: 'text-teal-600', dot: 'bg-teal-400' },
+  { bg: 'bg-cyan-600/10', text: 'text-cyan-600', dot: 'bg-cyan-400' },
+  { bg: 'bg-orange-600/10', text: 'text-orange-600', dot: 'bg-orange-400' },
+  { bg: 'bg-fuchsia-600/10', text: 'text-fuchsia-600', dot: 'bg-fuchsia-400' },
+  { bg: 'bg-lime-600/10', text: 'text-lime-600', dot: 'bg-lime-400' },
+  { bg: 'bg-sky-600/10', text: 'text-sky-600', dot: 'bg-sky-400' },
 ]
 
 export function getAuthorColor(author: string): AuthorColorStyle {
@@ -116,7 +116,7 @@ function AuthorSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-between gap-2 px-2.5 py-1 text-xs font-medium bg-neutral-100 text-black shadow-xs transition-all cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0"
+        className="inline-flex items-center justify-between gap-2 px-2.5 py-1 text-xs font-medium bg-neutral-600/10 text-black transition-all cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
@@ -131,7 +131,7 @@ function AuthorSelect({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute right-0 top-full z-[100] mt-1 overflow-hidden bg-white shadow-2xl py-1 min-w-[150px] max-w-[calc(100vw-3rem)] sm:max-w-[260px] max-h-56 overflow-y-auto border-0 outline-none ring-0"
+          className="absolute right-0 top-full z-[100] mt-1 overflow-hidden bg-white py-1 min-w-[150px] max-w-[calc(100vw-3rem)] sm:max-w-[260px] max-h-56 overflow-y-auto border-0 outline-none ring-0"
         >
           {selectedAuthor !== 'all' && (
             <li role="option" aria-selected={false}>
@@ -256,7 +256,7 @@ export function RepoCommitsCard({
       : commitsList
 
   return (
-    <div className="flex flex-col bg-white shadow-lg overflow-hidden transition-all duration-200 border-0 outline-none ring-0">
+    <div className="flex flex-col bg-white overflow-hidden transition-all duration-200 border-0 outline-none ring-0">
       <div
         onClick={toggleOpen}
         className="flex items-center justify-between gap-3 p-3 px-4 bg-white hover:bg-neutral-50 cursor-pointer select-none transition-colors border-0 outline-none ring-0"
@@ -282,24 +282,33 @@ export function RepoCommitsCard({
           </Link>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSync}
-          disabled={isSyncing}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black hover:text-blue-600 disabled:opacity-50 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0"
-        >
-          <RefreshCwIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-          {isSyncing ? 'Syncing...' : 'Sync'}
-        </button>
+        <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <Link
+            href={`/repos/${repo.repoId}`}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black hover:text-blue-600 transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0"
+          >
+            <BookOpenIcon className="w-3.5 h-3.5" />
+            Cover
+          </Link>
+          <button
+            type="button"
+            onClick={handleSync}
+            disabled={isSyncing}
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-black hover:text-blue-600 disabled:opacity-50 transition-colors cursor-pointer shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0"
+          >
+            <RefreshCwIcon className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing...' : 'Sync'}
+          </button>
+        </div>
       </div>
 
       <div
-        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${isOpen ? 'max-h-[460px] opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        className={`transition-all duration-300 ease-in-out motion-reduce:transition-none overflow-hidden ${isOpen ? 'max-h-[460px] opacity-600/10' : 'max-h-0 opacity-0 pointer-events-none'
           }`}
       >
         <div className="h-[360px] flex flex-col bg-white p-4 border-0 outline-none ring-0">
-          <div className="flex sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-100 shrink-0">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-700">
+          <div className="flex sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-neutral-600/10 shrink-0">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-600">
               <GitBranchIcon className="w-3.5 h-3.5 text-neutral-500" />
               <span>Commits</span>
               <span className="text-[11px] text-neutral-500">
@@ -348,8 +357,8 @@ export function RepoCommitsCard({
                           onSelectCommit?.(commit, { repoId: repo.repoId, fullName: repo.fullName })
                         }
                         className={`w-full py-2.5 px-2 flex items-baseline justify-between gap-3 text-xs text-left transition-colors cursor-pointer border-0 outline-none ring-0 focus:outline-none focus:ring-0 ${isSelected
-                            ? 'bg-green-600 text-white'
-                            : 'hover:bg-neutral-100 text-neutral-800'
+                          ? 'bg-green-600 text-white'
+                          : 'hover:bg-neutral-600/10 text-neutral-800'
                           }`}
                       >
                         <div className="flex items-baseline gap-2 min-w-0">
@@ -367,7 +376,7 @@ export function RepoCommitsCard({
                           </span>
                         </div>
                         <div
-                          className={`flex items-center gap-2 shrink-0 text-[11px] ${isSelected ? 'text-green-100' : 'text-neutral-500'
+                          className={`flex items-center gap-2 shrink-0 text-[11px] ${isSelected ? 'text-green-600/10' : 'text-neutral-500'
                             }`}
                         >
                           <span
@@ -657,7 +666,7 @@ export function RepoCommitsList({
     >
       <div className="flex flex-col gap-4">
         {error && (
-          <div className="p-3 border border-red-700 bg-red-50 text-red-700 text-sm rounded">
+          <div className="p-3 border border-red-600 bg-red-50 text-red-600 text-sm rounded">
             {error}
           </div>
         )}
@@ -670,7 +679,7 @@ export function RepoCommitsList({
           <div className="flex items-center gap-2.5">
             <Link
               href="/workflows"
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-white border-0 hover:bg-neutral-50 text-black transition-all duration-200 cursor-pointer shadow-sm text-sm font-medium outline-none ring-0"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-white border-0 hover:bg-neutral-50 text-black transition-all duration-200 cursor-pointer text-sm font-medium outline-none ring-0"
             >
               <span>Workflows</span>
             </Link>
@@ -724,7 +733,7 @@ export function RepoCommitsList({
           >
             <div
               className={`w-full lg:min-w-[460px] transition-all duration-300 ease-in-out motion-reduce:transition-none ${isPanelExpanded
-                ? 'opacity-100 translate-x-0'
+                ? 'opacity-600/10 translate-x-0'
                 : 'opacity-0 translate-x-6'
                 }`}
             >

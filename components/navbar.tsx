@@ -24,6 +24,7 @@ export function Navbar({
   const isSecurity = pathname === "/security"
   const isWorkflows = pathname.startsWith("/workflows")
   const isSettings = pathname.startsWith("/settings")
+  const isRepos = pathname.startsWith("/repos")
 
   return (
     <header className={containerClass}>
@@ -66,7 +67,7 @@ export function Navbar({
                     What&apos;s New
                   </Link>
                 )}
-                {user && !isSettings && (
+                {user && !isSettings && !isRepos && (
                   <Link href="/settings" className="hover:text-black cursor-pointer transition-colors">
                     Repositories
                   </Link>
